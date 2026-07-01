@@ -100,7 +100,7 @@ npx @edupia-tutor/spec-driven-docs --migrate-specs --apply
 ```
 
 Lệnh sẽ:
-- Di chuyển `specs/prd/{domain}/{slug}.md` → `specs/{domain}/{slug}/prd.md`, và `specs/bdd|tech-docs|design-spec/{domain}/…` → `specs/{domain}/{prd-slug}/{bdd|tech-docs|design-spec}/…`; flat `.trace/{UC-ID}.tsv` → `.trace/{domain}/{prd-slug}/{UC-ID}.tsv`.
+- Di chuyển `specs/prd/{domain}/{slug}.md` → `specs/{domain}/{slug}/{TICKET-ID}-{slug}.md`, và `specs/bdd|tech-docs|design-spec/{domain}/…` → `specs/{domain}/{prd-slug}/{bdd|tech-docs|design-spec}/…`; flat `.trace/{UC-ID}.tsv` → `.trace/{domain}/{prd-slug}/{UC-ID}.tsv`.
 - Suy ra `{prd-slug}` cho mỗi file BDD/tech-doc/design-spec/trace bằng cách đọc header `@trace.source` (PRD nguồn) hoặc tag `@trace.uc` (map qua index `.feature`).
 - Dùng `git mv` cho file đã track (giữ history), `fs.rename` cho phần còn lại.
 - Rewrite các tham chiếu nội bộ (`@trace.source`, đường dẫn `specs/…`) trong những file vừa move.
@@ -130,7 +130,7 @@ Claude Code luôn mở ở **umbrella repo** (không mở trong service submodul
  SPEC SUBMODULE                       SERVICE SUBMODULE(s)
  (PO sở hữu · origin riêng)           (Dev sở hữu · origin riêng)
  specs/{domain}/{prd-slug}/          src/   (chỉ code + tooling)
-   prd.md · bdd/ (web/app/system)
+   {TICKET-ID}-{prd-slug}.md · bdd/ (web/app/system)
    design-spec/ · tech-docs/
  feedback/ (bug · proposal · prd-change)
  .trace/{domain}/{prd-slug}/*.tsv  (qc_status + dev_selftest — write area của dev/QC)
@@ -256,8 +256,8 @@ Topology giả định cho mọi ví dụ dưới đây:
 **① PO — 1 tầng (spec repo)**
 ```bash
 cd my-project-specs && git pull
-# /generate-prd · /generate-design-spec · /generate-bdd (web/app/system) · set @trace.status: approved
-git add specs/payment/checkout/prd.md \
+# /generate-prd · /generate-design-spec · /generate-bdd (web/app/system) · set Status: approved (bảng Metadata)
+git add specs/payment/checkout/{TICKET-ID}-checkout.md \
         specs/payment/checkout/design-spec/FT-042-checkout-design.md \
         specs/payment/checkout/bdd/system/FT-042-UC1-checkout-system.feature \
         specs/payment/checkout/bdd/web/FT-042-UC1-checkout-web.feature \
@@ -400,7 +400,7 @@ git pull
 /refine-prd {prd-file}                   # review 4 lens: QA/DEV/SA/PO
 /review-context {prd-file}               # chất lượng + P0 check
 /review-context --fix {prd-file}         # auto-fix vấn đề nhỏ
-# → update @trace.status: approved khi PRD sẵn sàng
+# → update Status: approved (bảng Metadata) khi PRD sẵn sàng
 /generate-design-spec {prd-file}         # FE/App
 /generate-bdd {prd-file}                 # outside-in: web → app → system (System BDD tổng hợp từ web+app)
 
@@ -416,8 +416,8 @@ cd my-project-web
 /sync                                    # pull + submodule + Living Docs
 git add my-project-specs && git commit -m "chore: sync specs" && git push
 
-/review-context my-project-specs/specs/{domain}/{prd-slug}/prd.md
-# → P0: @trace.domain khớp services config? @trace.status: approved?
+/review-context my-project-specs/specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md
+# → P0: Domain (bảng Metadata) khớp services config? Status: approved?
 # Đọc Web BDD do PO generate (KHÔNG tự generate BDD):
 #   my-project-specs/specs/{domain}/{prd-slug}/bdd/web/{TICKET-ID}-UC*.feature
 
@@ -449,7 +449,7 @@ cd my-project-be
 /sync
 # → cũng liệt kê "📥 New tester feedback" → /fix-bug · promote proposal · báo PO
 
-/review-context my-project-specs/specs/{domain}/{prd-slug}/prd.md
+/review-context my-project-specs/specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md
 # Đọc System BDD: my-project-specs/specs/{domain}/{prd-slug}/bdd/system/{TICKET-ID}-UC*.feature
 
 /generate-tech-docs {domain}/{TICKET-ID}-UC1

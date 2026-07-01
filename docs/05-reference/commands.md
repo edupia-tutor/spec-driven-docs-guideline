@@ -56,12 +56,14 @@
 
 | Command | Cách dùng (ví dụ) | Output | When to use |
 |---------|-------------------|--------|-------------|
-| `/generate-prd` | `/generate-prd specs/product-definition/FEAT-01-login.md` | `specs/{domain}/{prd-slug}/prd.md` | After define-product. Thêm `API Source: existing` + section "Existing API Contract" cho feature brownfield. |
-| `/refine-prd` | `/refine-prd specs/auth/login/prd.md` | `.agent/review/{prd-slug}-findings.yaml` | After generate-prd — fan-out 4 review lens + completeness-critic loop, mở Review Board. |
-| `/refine-prd --resume` | `/refine-prd --resume specs/auth/login/prd.md` | Applied findings + bumped version | Sau khi review trong Review Board (nút ⚡ Apply tự chạy lệnh này). |
-| `/review-context` (PRD) | `/review-context specs/auth/login/prd.md` | `.agent/review/{prd-slug}-review-context-findings.yaml` | Quality gate bắt buộc trước Phase 3. Checks: banned terms (P1), ambiguity (P2), conflicts (P3), completeness (P4). |
-| `/review-context --fix` | `/review-context --fix specs/auth/login/prd.md` | Applies all auto-fixable findings immediately | Dev quick-fix, không cần Review Board. |
-| `/review-context --resume` | `/review-context --resume specs/auth/login/prd.md` | Applies accepted findings + bump version | PO/SA review — human quyết từng finding. |
+| `/generate-prd` | `/generate-prd specs/product-definition/FEAT-01-login.md` | `specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md` | After define-product. Thêm `API Source: existing` + section "Existing API Contract" cho feature brownfield. |
+| `/refine-prd` | `/refine-prd specs/auth/login/{TICKET-ID}-login.md` | `.agent/review/{prd-slug}-findings.yaml` | After generate-prd — fan-out 4 review lens + completeness-critic loop, mở Review Board. |
+| `/refine-prd --resume` | `/refine-prd --resume specs/auth/login/{TICKET-ID}-login.md` | Applied findings + bumped version | Sau khi review trong Review Board (nút ⚡ Apply tự chạy lệnh này). |
+| `/review-context` (PRD) | `/review-context specs/auth/login/{TICKET-ID}-login.md` | `.agent/review/{prd-slug}-review-context-findings.yaml` | Quality gate trước Phase 3. Checks: routing P0 (umbrella), banned terms (P1), ambiguity (P2), conflicts (P3), completeness (P4), custom (P5). 0 critical → PO đặt `Status: approved`. `--fix`/`--resume` reset Status→draft khi sửa PRD. |
+| `/review-context --fix` | `/review-context --fix specs/auth/login/{TICKET-ID}-login.md` | Applies all auto-fixable findings immediately | Dev quick-fix, không cần Review Board. |
+| `/review-context --resume` | `/review-context --resume specs/auth/login/{TICKET-ID}-login.md` | Applies accepted findings + bump version | PO/SA review — human quyết từng finding. |
+
+> **Change Log gọn (rolling-window):** PRD chỉ giữ **5 version gần nhất** trong `# Change Log` (bảng phẳng 1 dòng/version); lịch sử cũ hơn được `/refine-prd` & `/review-context` tự dồn sang `changelog/{TICKET-ID}-{prd-slug}.changelog.md` (thư mục con của feature-package). Nhờ vậy PRD **không phình** theo các vòng refine, Dev/QC khỏi nạp lịch sử thừa vào context. `/generate-bdd` đọc 5 row gần để bắt drift; nếu BDD cũ hơn cửa sổ này → khuyến nghị gen lại toàn bộ (F).
 
 ---
 
@@ -69,7 +71,7 @@
 
 | Command | Cách dùng (ví dụ) | Output | When to use |
 |---------|-------------------|--------|-------------|
-| `/generate-design-spec` | `/generate-design-spec specs/auth/login/prd.md` | `specs/{domain}/{prd-slug}/design-spec/{TICKET-ID}-design-spec-{platform}.md` | FE/App: sau khi PRD approved, trước BDD. PO phải cấp **node-level Figma frame link** (URL có `?node-id=`) cho mỗi screen; AI fetch từng frame qua Figma MCP. Screen thiếu link → ❌ Missing, spec ở draft và chặn sign-off + `/generate-bdd`. |
+| `/generate-design-spec` | `/generate-design-spec specs/auth/login/{TICKET-ID}-login.md` | `specs/{domain}/{prd-slug}/design-spec/{TICKET-ID}-design-spec-{platform}-{slug}.md` | FE/App: sau khi PRD approved (guard mềm), trước BDD. Ghi `Built from PRD: vX` (phát hiện lỗi thời); re-run có Version Check theo PRD. PO cấp **node-level Figma frame link** (`?node-id=`) cho mỗi screen; AI fetch từng frame qua Figma MCP. Screen thiếu link → ❌ Missing, Status giữ `draft`. **Self-Review Gate** tự rà trước khi ghi; `/generate-bdd` chỉ **cảnh báo mềm** nếu design-spec chưa approved. |
 
 > BE teams bỏ qua Phase 2b — đọc PRD trực tiếp rồi `/generate-bdd`.
 
@@ -79,10 +81,10 @@
 
 | Command | Cách dùng (ví dụ) | Output | When to use |
 |---------|-------------------|--------|-------------|
-| `/generate-bdd` | `/generate-bdd specs/auth/login/prd.md` | `specs/{domain}/{prd-slug}/bdd/{UC-ID}.feature` (multi-service: `{prd-slug}/bdd/{service}/{UC-ID}.feature`) | After PRD approved (+ Design Spec sign-off cho FE/App). Đọc Service/Module từ PRD metadata, áp platform vocabulary, hiện SC outline chờ confirm. **Thứ tự outside-in: web → app → system**; `system` **tổng hợp từ web+app BDD** (web&app lệch contract → CHECKPOINT chọn union/platform-hint/separate-endpoints, ghi `@system.resolution:`; chỉ-BE → từ PRD). PRD lớn (>3 UC hoặc >300 dòng) → orchestration mode (1 sub-agent / UC). |
-| `/review-context` (BDD) | `/review-context specs/auth/login/bdd/system/FEAT-01-UC1-login.feature` | `.agent/review/{uc-id}-review-bdd-findings.yaml` | Quality gate bắt buộc trước Phase 4. Checks: PRD coverage (mỗi AC + BR → ≥1 SC), Gherkin R1–R10, compliance C1–C5. |
-| `/review-context --fix` | `/review-context --fix specs/auth/login/bdd/web/FEAT-01-UC1-login.feature` | Auto-fix terminology, metadata, coverage matrix | Dev quick-fix. |
-| `/review-context --resume` | `/review-context --resume specs/auth/login/bdd/system/FEAT-01-UC1-login.feature` | Applies accepted findings + bump bdd_version | SA review. |
+| `/generate-bdd` | `/generate-bdd specs/auth/login/{TICKET-ID}-login.md` | `specs/{domain}/{prd-slug}/bdd/{UC-ID}.feature` (multi-service: `{prd-slug}/bdd/{service}/{UC-ID}.feature`) | After PRD approved (+ Design Spec sign-off cho FE/App). Đọc Service/Module từ PRD metadata, áp platform vocabulary, hiện SC outline chờ confirm. **Thứ tự outside-in: web → app → system**; `system` **tổng hợp từ web+app BDD** (web&app lệch contract → CHECKPOINT chọn union/platform-hint/separate-endpoints, ghi `@system.resolution:`; chỉ-BE → từ PRD). PRD lớn (>3 UC hoặc >300 dòng) → orchestration mode (1 sub-agent / UC). FE/App: nuốt AC-UI + Screen States từ design-spec (gate approved+fresh+sanity). Proposal tester: chỉ nạp `Status: accepted` rồi lưu trữ. |
+| `/review-context` (BDD) | `/review-context specs/auth/login/bdd/system/FEAT-01-UC1-login.feature` | `.agent/review/{uc-id}-review-bdd-findings.yaml` | Quality gate trước Phase 4. Checks: PRD coverage (mỗi AC + BR → ≥1 SC), Gherkin R1–R10, compliance C1–C5. 0 critical → đặt `@trace.status: approved`. |
+| `/review-context --fix` | `/review-context --fix specs/auth/login/bdd/web/FEAT-01-UC1-login.feature` | Auto-fix terminology, metadata, coverage matrix + reset `@trace.status` & `uc_status` → draft | Dev quick-fix. |
+| `/review-context --resume` | `/review-context --resume specs/auth/login/bdd/system/FEAT-01-UC1-login.feature` | Applies accepted findings + bump bdd_version + reset `@trace.status` & `uc_status` → draft | SA review. |
 
 ---
 
@@ -101,7 +103,7 @@
 
 | Command | Cách dùng (ví dụ) | Output | When to use |
 |---------|-------------------|--------|-------------|
-| `/generate-code` | `/generate-code specs/auth/login/bdd/system/FEAT-01-UC1-login.feature` | `src/...` (tags `@trace.implements`) | After tech-design approved. Default = full impl/BE. |
+| `/generate-code` | `/generate-code specs/auth/login/bdd/system/FEAT-01-UC1-login.feature` | `src/...` (tags `@trace.implements`) | After tech-design approved. Guard mềm: BDD `@trace.status` approved; FE/App design-spec approved+fresh+sanity. Default = full impl/BE. |
 | `/generate-code --phase=ui` | `/generate-code --phase=ui specs/auth/login/bdd/web/FEAT-01-UC1-login.feature` | UI + mock API adapter | FE: BE chưa sẵn sàng — sinh UI + mock adapter. Mock **shape**: BE contract nếu có (chuẩn) → else System BDD + warn; fixture values luôn từ System BDD. Tester test FE ngay được. |
 | `/generate-code --phase=integration` | `/generate-code --phase=integration specs/auth/login/bdd/web/FEAT-01-UC1-login.feature` | Wires real API | FE: sau khi T7 sign-off gate approved — thay mock adapter bằng real API calls. |
 | `/review-code` | `/review-code FEAT-01-UC1` | Review report: Critical / Major / Minor | After generate-code. Check: mỗi scenario có endpoint, trace tags, layer rules, error handling khớp CLAUDE.md §5. Fix CRITICAL + MAJOR trước khi merge. |
@@ -122,11 +124,11 @@
 
 ## Phase 6b — QC Automation (official QC suite)
 
-> Pipeline `/qc-*` **là** official QC suite. Chạy **theo thứ tự** sau khi BDD approved (`/review-context` (BDD) APPROVED). Tách biệt hoàn toàn với dev self-check: QC sở hữu `qc_status`, dev sở hữu `dev_selftest`. `/qc-run-test` & `/qc-report` dùng module `qc-playwright`, độc lập với dev implementation module. Xem [../02-guides/tester/qc-automation.md](../02-guides/tester/qc-automation.md).
+> Pipeline `/qc-*` **là** official QC suite. Chạy **theo thứ tự** sau khi BDD `@trace.status: approved` (review-context BDD sạch + người duyệt; `/qc-analyze` cảnh báo mềm nếu chưa). Tách biệt hoàn toàn với dev self-check: QC sở hữu `qc_status`, dev sở hữu `dev_selftest`. `/qc-run-test` & `/qc-report` dùng module `qc-playwright`, độc lập với dev implementation module. Xem [../02-guides/tester/qc-automation.md](../02-guides/tester/qc-automation.md).
 
 | Command | Cách dùng (ví dụ) | Output | When to use |
 |---------|-------------------|--------|-------------|
-| `/qc-analyze` | `/qc-analyze FEAT-01-UC1` | **2 file** trong `{qc_dir}/{UC-ID}/` (mặc định `docs/`): `REQUIREMENT_ANALYSIS.md` (gộp requirement + BR + data-flow + AC) + `DOC_GAPS.md` | After BDD approved — đầu pipeline QC. |
+| `/qc-analyze` | `/qc-analyze FEAT-01-UC1` | **2 file** trong `{qc_dir}/{UC-ID}/` (mặc định `docs/`): `REQUIREMENT_ANALYSIS.md` (gộp requirement + BR + data-flow + AC) + `DOC_GAPS.md` | After BDD `@trace.status: approved` (guard mềm) — đầu pipeline QC. |
 | `/qc-plan` | `/qc-plan FEAT-01-UC1` | `{qc_dir}/{UC-ID}/TEST_PLAN.md` (scope, layers, priorities, questions-for-dev) | After `/qc-analyze`. |
 | `/qc-design-test` | `/qc-design-test FEAT-01-UC1` | `{qc_dir}/{UC-ID}/test-cases/*.Test.md` mapped to `{UC-ID}-SC{N}` | After `/qc-plan`. |
 | `/qc-review` | `/qc-review FEAT-01-UC1` | Verdict APPROVED / NEEDS_FIX + findings (**inline — không sinh file**) | After `/qc-design-test` (test-case) hoặc `/qc-run-test` (script). |
@@ -150,7 +152,7 @@
 | Command | Cách dùng (ví dụ) | Output | When to use |
 |---------|-------------------|--------|-------------|
 | `/report-bug {UC-ID} {desc}` | `/report-bug FEAT-01-UC1 "nhập sai mật khẩu vẫn đăng nhập được"` | `{spec_repo}/feedback/bug-reports/{BUG-ID}.md` + spec context + layer classification | Tester hoặc QC tìm thấy bug (gồm QC product-gap). Phân loại layer (Code/BDD/PRD/Design/Env) để route. |
-| `/propose-scenario {UC-ID} {desc}` | `/propose-scenario FEAT-01-UC1 "khoá tài khoản sau 5 lần sai mật khẩu"` | `{spec_repo}/feedback/bdd-proposals/{UC-ID}-*.md` draft Gherkin | Tester hoặc QC tìm thấy edge case BDD chưa cover. Map vào PRD AC sẵn có, hoặc emit PRD change request nếu hành vi thực sự mới. |
+| `/propose-scenario {UC-ID} {desc}` | `/propose-scenario FEAT-01-UC1 "khoá tài khoản sau 5 lần sai mật khẩu"` | `{spec_repo}/feedback/bdd-proposals/{UC-ID}-*.md` draft Gherkin (mang `Status: proposed`) | Tester hoặc QC tìm thấy edge case BDD chưa cover. Map vào PRD AC sẵn có, hoặc emit PRD change request nếu hành vi thực sự mới. Vòng đời: `proposed` → PO/Dev đặt `accepted` → `/generate-bdd` nạp rồi đặt `incorporated` + lưu trữ. |
 
 ---
 

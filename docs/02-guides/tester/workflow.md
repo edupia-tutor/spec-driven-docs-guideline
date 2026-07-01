@@ -16,7 +16,7 @@ git pull && git submodule update --remote --recursive
 Lookup FT-042 trong spec-manifest.yaml
 → status: approved? ✅ (nếu draft → dừng, báo PO)
 → ghi lại paths (tất cả đều nằm trong submodule):
-    prd:          {spec_source}/specs/{domain}/{prd-slug}/prd.md
+    prd:          {spec_source}/specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md
     bdd.system:   {spec_source}/specs/{domain}/{prd-slug}/bdd/system/FT-042-*.feature
     bdd.web:      {spec_source}/specs/{domain}/{prd-slug}/bdd/web/FT-042-*.feature
     tech_docs.be: {spec_source}/specs/{domain}/{prd-slug}/tech-docs/FT-042-*.md

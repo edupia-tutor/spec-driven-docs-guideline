@@ -57,11 +57,12 @@ Framework dùng metadata `@trace.*` để liên kết PRD → BDD → Code. (Chi
 
 | Field | Vị trí | Ý nghĩa |
 |---|---|---|
-| `@trace.domain` | PRD frontmatter | Domain của feature (auth, payment, ...) — dùng để route vào đúng service submodule |
+| `Domain` | bảng Metadata PRD | Domain của feature (auth, payment, ...) — dùng để route vào đúng service submodule |
 | `@trace.module` | BDD / Tech Doc header | Module trong codebase sẽ implement |
 | `@trace.prd` | BDD / Tech Doc header | Link về PRD gốc |
 | `@trace.bdd` | Code comment / test | Link về BDD scenario |
-| `@trace.status` | PRD frontmatter | `draft` / `approved` — chỉ code khi `approved` |
+| `Status` | bảng Metadata PRD | `draft` / `approved` — chỉ code khi `approved` |
+| `@trace.status` | BDD `.feature` header | `draft` / `approved` — Dev-lead/SA đặt approved sau review-context BDD sạch; mirror → `uc_status` (dashboard) |
 | `dev_selftest` | Trace TSV | `pass` / `fail` / `not_run` — kết quả dev self-check, set bởi `/dev-run-test`. Surfaced trong Living Docs để QC biết dev đã chạy self-check — **KHÔNG phải coverage chính thức** |
 | `dev_selftest_at` | Trace TSV | Timestamp lần chạy `/dev-run-test` gần nhất |
 | `qc_status` | Trace TSV | `pass` / `fail` / `skip` / `not_run` — kết quả **QC chính thức**, set bởi `/qc-run-test` (do QC chạy, KHÔNG phải dev). Orthogonal với `dev_selftest` và với coverage `status` |
@@ -70,7 +71,7 @@ Framework dùng metadata `@trace.*` để liên kết PRD → BDD → Code. (Chi
 ### Ví dụ trace chain hoàn chỉnh
 
 ```
-specs/auth/login/prd.md                              ← @trace.domain: auth, @trace.status: approved
+specs/auth/login/{TICKET-ID}-login.md                              ← Metadata: Domain: auth, Status: approved
     ↓
 specs/auth/login/bdd/system/FT-001-UC1-login.feature ← @trace.prd: FT-001 · web/app/system riêng (system tổng hợp từ web+app)
     ↓

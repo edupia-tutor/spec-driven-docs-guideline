@@ -56,6 +56,8 @@ Tester đọc spec chain **PRD → BDD → Code** để xác định layer của
 | Yêu cầu thay đổi | cũ | cũ | **PRD change** | PO → Dev | Tester |
 | ✅ rõ ràng | ✅ đúng | ❌ UI sai | **Design Spec bug** | PO/Designer → Dev | Tester |
 
+> **Sửa PRD/BDD/Design Spec → phải duyệt lại:** mọi case mà PO sửa PRD (Case 3/4), Dev sửa BDD (Case 2), hoặc PO/Designer sửa Design Spec (Case 5) → artifact đó **tự về `draft`** (PRD/Design `Status` ở Metadata; BDD `@trace.status`). Phải `/review-context` lại + người **đặt `approved`** trước khi downstream (tech-docs / code / QC) tiêu thụ. Proposal scenario: PO/Dev đặt `Status: accepted` → `/generate-bdd` tự nạp rồi lưu trữ.
+
 ---
 
 ## 3. Case 1 — Code Bug (Code ≠ BDD)

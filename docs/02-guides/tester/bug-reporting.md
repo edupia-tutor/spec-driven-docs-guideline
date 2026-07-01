@@ -29,7 +29,7 @@ Nếu `/report-bug` báo *coverage gap* (behavior đúng nhưng chưa có scenar
 /propose-scenario FT-001 login với email có khoảng trắng ở cuối vẫn phải thành công
 ```
 
-- Nếu behavior **đã nằm trong một AC của PRD** → lệnh draft Gherkin (tag `@proposed @from-test`), ghi vào `{spec_source}/feedback/bdd-proposals/` → commit + push. PO/Dev review rồi đưa vào `.feature`.
+- Nếu behavior **đã nằm trong một AC của PRD** → lệnh draft Gherkin (tag `@proposed @from-test`, mang `Status: proposed`), ghi vào `{spec_source}/feedback/bdd-proposals/` → commit + push. PO/Dev review → đặt `Status: accepted` → `/generate-bdd` tự chèn vào `.feature` rồi lưu trữ (`incorporated`).
 - Nếu behavior **chưa có trong PRD** → lệnh **ghi** một *PRD change request* (`State: Open`) vào `{spec_source}/feedback/prd-change-requests/{UC-ID}-{slug}.md` → commit + push (KHÔNG chỉ in ra). PO thấy nó khi `/sync`, thêm/sửa AC rồi `/generate-bdd` lại.
 
 > Tester không tự ghi vào BDD — chỉ đề xuất. Giữ đúng ownership.
@@ -45,7 +45,7 @@ Service  : BE / Web / App
 Severity : Critical / Major / Minor
 
 Spec context:
-  PRD      : specs/{domain}/{prd-slug}/prd.md (v{x.x})
+  PRD      : specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md (v{x.x})
   BDD      : {bdd path} → Scenario: "{scenario title}"
   Tech Doc : {tech_docs path}
 
@@ -77,7 +77,7 @@ Service  : BE
 Severity : Major
 
 Spec context:
-  PRD      : specs/auth/FT-001-login/prd.md (v1.0)
+  PRD      : specs/auth/FT-001-login/FT-001-login.md (v1.0)
   BDD      : free-trial-specs/specs/auth/FT-001-login/bdd/system/FT-001-login.feature
              → Scenario: "Lock account after 5 failed attempts"
   Tech Doc : free-trial-specs/specs/auth/FT-001-login/tech-docs/FT-001-auth-api.md

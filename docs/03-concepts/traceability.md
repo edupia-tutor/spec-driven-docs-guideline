@@ -18,11 +18,11 @@ Mỗi artifact link tới mọi artifact khác qua `@trace.*` tags, và trạng 
 
 ## Artifact chain & @trace tags
 
-Mỗi artifact mang `@trace.*` metadata liên kết về artifact trước nó:
+Mỗi artifact liên kết về artifact trước nó bằng metadata (PRD: bảng **Metadata**; BDD / tech-doc / code / test: `@trace.*` tags):
 
 ```
 product-definition.md
-  └─► PRD.md (@trace.domain, @trace.status; Service/Module trong metadata)
+  └─► PRD.md (Domain, Status, Service/Module — đều trong bảng Metadata)
         └─► specs/{domain}/{prd-slug}/bdd/{web|app|system}/{UC-ID}.feature (@trace.prd_version, @trace.module)
               └─► specs/{domain}/{prd-slug}/tech-docs/{UC-ID}-tech-design*.md (@trace.bdd_version)
                     └─► src/ code — service submodule (@trace.implements)
@@ -34,8 +34,10 @@ product-definition.md
 
 | Field | Vị trí | Ý nghĩa |
 |-------|--------|---------|
-| `@trace.domain` | PRD frontmatter | Domain của feature (auth, payment, …) — route vào đúng service submodule |
-| `@trace.status` | PRD frontmatter | `draft` / `approved` — dev team chỉ code khi `approved` |
+| `Domain` | bảng Metadata PRD | Domain của feature (auth, payment, …) — route vào đúng service submodule |
+| `Status` | bảng Metadata PRD | `draft` / `approved` — dev team chỉ code khi `approved` |
+| `@trace.status` | BDD `.feature` header | `draft` / `approved` — người đặt `approved` sau khi review-context BDD sạch; mirror vào `uc_status` |
+| `uc_status` | trace TSV (mirror) | gương của BDD `@trace.status` — `/validate-traces` đồng bộ → dashboard `approved_ucs` |
 | `@trace.service` / `@trace.module` | BDD / Tech Doc header | Service + module sẽ implement |
 | `@trace.prd_version` / `@trace.bdd_version` | BDD / code / test | Version của spec mà artifact được sinh từ — base cho drift detection |
 | `@trace.implements` | Code comment | Scenario mà code này implement: `={UC-ID}-SC{N}` |
@@ -106,6 +108,7 @@ Living Docs (VS Code panel) đọc trace TSV và hiển thị traceability healt
 - Drill down: PRD → UC → per-scenario table (Spec ver, Gen ver, Code, Tests, **Dev Self-Check**, **QC Status**, **Waiting on**, Status)
 - **Waiting on** (cột `qc_owner` + `qc_blocked_by`): cho PO/PM thấy case chưa pass đang **chờ dev** (product-gap → `BUG-{id}`) hay **chờ PO** confirm/clarify (spec gap → `GAP-{id}`). Aggregates `waiting_dev` / `waiting_po` ở header dashboard.
 - Status badges: ✅ OK · ⚠️ DRIFT · 🔴 GAP · — UNTRACKED · filter theo domain/PRD status/doc status · search theo UC/SC ID.
+- Số **UC approved** (`approved_ucs`) trên dashboard = số UC có BDD `@trace.status: approved`, đồng bộ từ `.feature` qua `/validate-traces` (xem `uc_status` ở bảng trace field trên).
 
 **Ba nơi chứa trace data — phân biệt authoritative vs mirror:**
 

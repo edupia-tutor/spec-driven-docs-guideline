@@ -22,7 +22,7 @@
 > **Project Lessons:** Nếu AI cứ lặp lại một kiểu sai khi gen PRD/BDD (vd: quên negative path, dùng sai thuật ngữ), chạy `/learn "AI hay X, đúng phải Y"` (category `prd`/`bdd`). Lesson được nạp vào đầu mọi lệnh → AI không lặp lại. Commit file lessons để cả team dùng chung.
 
 > **Xử lý feedback từ tester:** Tester `/report-bug` và `/propose-scenario` commit vào `{spec_source}/feedback/` của spec repo. PO/Dev **thấy chúng khi chạy `/sync`** (dòng `📥 New tester feedback` liệt kê bug + proposal mới kéo về). PO review proposal:
-> - **Map vào AC sẵn có** → coverage gap thật → để Dev thêm scenario vào `.feature` (hoặc regen).
+> - **Map vào AC sẵn có** → coverage gap thật → PO/Dev đặt `Status: accepted` trong file proposal → `/generate-bdd` tự chèn vào `.feature` rồi lưu trữ (`incorporated`); hoặc Dev thêm tay.
 > - Là **PRD change request** (behavior chưa có trong PRD) → PO thêm/sửa AC → bump version → `/generate-bdd` lại.
 
 ---

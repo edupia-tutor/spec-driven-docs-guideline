@@ -79,7 +79,7 @@ functional / integration / e2e / non-functional / exploratory.
 
 ## Entry Point
 
-Pipeline QC bắt đầu ngay khi BDD của một UC được approved (`/review-context (BDD)` APPROVED):
+Pipeline QC bắt đầu khi BDD của một UC đã duyệt — `# @trace.status: approved` (sau `/review-context (BDD)` sạch critical + người duyệt đặt). `/qc-analyze` đọc field này và **cảnh báo mềm** nếu chưa approved:
 
 ```
 /qc-analyze {UC-ID}   →  … → /qc-report {UC-ID}  →  /validate-traces {UC-ID}

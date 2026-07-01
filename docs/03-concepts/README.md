@@ -9,6 +9,7 @@ Hiểu **cách framework được xây dựng và vận hành** — kiến trúc
 - [architecture.md](architecture.md) — 6 lớp (Protection → Output), module plug-in system, build pipeline (`*.tmpl` → `*.md` → `core/`), directory map, sub-agent orchestration, hook data-protection.
 - [pipeline.md](pipeline.md) — các phase Discovery → PRD → Design-Spec → BDD → Tech-Docs → Code → Dev self-check → QC automation → Tester feedback; review gates; và step-architecture model (gate / context-loader / spawn-agent / report-footer) đằng sau mỗi command.
 - [traceability.md](traceability.md) — `@trace.*` tags, trace TSV, hai tín hiệu `dev_selftest` vs `qc_status`, Living Docs (canonical trong spec-module + panel mirror), và `/validate-traces`.
+- [mechanisms-explained.md](mechanisms-explained.md) — giải thích các **cơ chế** framework bằng **ngôn ngữ dễ hiểu** + ví von đời thường (bổ sung cho các trang trên; ưu tiên trực giác).
 
 ## Đọc gì trước?
 

@@ -18,7 +18,7 @@ Sau khi chạy `/generate-spec-manifest`, tra manifest để lấy paths:
 ```yaml
 # spec-manifest.yaml
 FT-001:
-  prd:          "my-project-specs/specs/auth/FT-001-login/prd.md"
+  prd:          "my-project-specs/specs/auth/FT-001-login/FT-001-login.md"
   bdd:
     be:   "my-project-specs/specs/auth/FT-001-login/bdd/system/FT-001-UC1-login-system.feature"
     web:  "my-project-specs/specs/auth/FT-001-login/bdd/web/FT-001-UC1-login-web.feature"
@@ -26,7 +26,7 @@ FT-001:
     be:   "my-project-specs/specs/auth/FT-001-login/tech-docs/FT-001-auth-api.md"
 ```
 
-**Bước 1: Đọc PRD** tại `my-project-specs/specs/auth/FT-001-login/prd.md`
+**Bước 1: Đọc PRD** tại `my-project-specs/specs/auth/FT-001-login/FT-001-login.md`
 *(nằm trong spec submodule — shared repo của PO)*
 
 ```markdown

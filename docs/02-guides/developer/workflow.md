@@ -27,7 +27,7 @@ flowchart TD
 
     TD --> E["/dev-gen-test → /dev-run-test<br/>dev tự kiểm (dev_selftest)<br/>ghi vào spec .trace"]
     E --> F["/validate-traces<br/>cập nhật Living Docs (.living-docs)"]
-    F --> G["/review-code — 4 lens:<br/>Security · Performance · Architecture · Test"]
+    F --> G["/review-code — 4 lăng kính:<br/>Traceability · Layer · Coding Standards · Spec Compliance"]
     G --> H([Tạo PR → notify PO/SA review])
 ```
 
@@ -45,7 +45,7 @@ Nhận thông báo PRD + BDD mới từ PO
         │
         ▼
 /review-context {prd-file}
-→ Kiểm tra @trace.domain, @trace.status = approved
+→ Kiểm tra Domain, Status = approved (bảng Metadata PRD)
 → Đọc hiểu AC, UC, BR trong PRD
 → Đọc BDD tương ứng trong specs/{domain}/{prd-slug}/bdd/{platform}/
 → Nếu có gì không rõ: hỏi PO TRƯỚC khi tiếp tục
@@ -98,7 +98,7 @@ FE/App track (web|app)   ── KHÔNG chặn chờ BE ──
         │
         ▼
 /review-code {files}
-→ 4 lens: Security / Performance / Architecture / Test Coverage
+→ 4 lăng kính: Traceability / Layer Architecture / Coding Standards / Spec Compliance
 → Fix issues trước khi tạo PR
         │
         ▼

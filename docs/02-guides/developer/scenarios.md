@@ -20,8 +20,8 @@
 1. git submodule update --remote my-project-specs
    (lấy PRD + BDD mới nhất từ PO)
 
-2. /review-context my-project-specs/specs/payment/checkout/prd.md
-   → Kiểm tra @trace.status = approved (không code khi còn draft)
+2. /review-context my-project-specs/specs/payment/checkout/{TICKET-ID}-checkout.md
+   → Kiểm tra Status = approved (bảng Metadata PRD; không code khi còn draft)
    → Đọc kỹ AC, UC, BR
 
 3. Đọc BDD tương ứng theo platform của mình:
@@ -109,7 +109,7 @@ PO notify: "FT-042 updated — BR7 thay đổi giới hạn từ 5tr → 10tr"
         │
         ▼
 Dev chạy:
-/review-context specs/payment/checkout/prd.md
+/review-context specs/payment/checkout/{TICKET-ID}-checkout.md
 → Xem diff từ v1.0 sang v1.1 (agent highlight thay đổi)
         │
         ▼
@@ -185,7 +185,7 @@ Service  : BE
 Severity : Major
 
 Spec context:
-  PRD      : specs/auth/login/prd.md (v1.0)
+  PRD      : specs/auth/login/{TICKET-ID}-login.md (v1.0)
   BDD      : free-trial-specs/specs/auth/login/bdd/system/FT-001-login.feature
              → Scenario: "Lock account after 5 failed attempts"
   Tech Doc : free-trial-specs/specs/auth/login/tech-docs/FT-001-auth-api.md
@@ -212,7 +212,7 @@ Code: ???                                      → kiểm tra tiếp
 Chạy:
 ```
 /fix-bug "BUG-20260605-003: FT-001-UC2-BR3 — account not locked after 5 failures
-  PRD: specs/auth/login/prd.md
+  PRD: specs/auth/login/{TICKET-ID}-login.md
   BDD: free-trial-specs/specs/auth/login/bdd/system/FT-001-login.feature"
 ```
 Agent sẽ: đọc BDD scenario được chỉ định · tìm code implement scenario đó (theo `@trace.bdd`) · so sánh logic thực tế vs spec · propose fix có giải thích.
@@ -253,7 +253,7 @@ PO thông báo: "FT-042 Design Spec + BDD đã sẵn sàng"
 git submodule update --remote my-project-specs
 
 FE dev đọc:
-- my-project-specs/specs/payment/checkout/prd.md                   (business rules)
+- my-project-specs/specs/payment/checkout/{TICKET-ID}-checkout.md                   (business rules)
 - my-project-specs/specs/payment/checkout/design-spec/FT-042-*.md  (screens, components)
 - my-project-specs/specs/payment/checkout/bdd/web/FT-042-UC*.feature  (BDD đã gen sẵn)
         │
@@ -343,7 +343,7 @@ code .   ← hoặc claude .
 # → sync Living Docs panel
 
 # 4. Framework tự detect umbrella mode từ project-context.yaml
-# Khi chạy /review-context với PRD có @trace.domain: be
+# Khi chạy /review-context với PRD có Domain: be (bảng Metadata)
 # → CODE route tới mass-product-be/  ·  BDD đọc từ spec repo mass-product-spec/specs/{domain}/{prd-slug}/bdd/ (spec_source set)
 ```
 

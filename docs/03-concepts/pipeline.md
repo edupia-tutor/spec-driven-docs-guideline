@@ -2,7 +2,7 @@
 
 # Pipeline
 
-Vòng đời feature đi qua các phase, mỗi transition có một **AI review gate**:
+Vòng đời feature đi qua các phase, mỗi transition lớn có **AI review (tìm findings) + cổng duyệt do người quyết** (xem note "Cổng duyệt" bên dưới):
 **Discovery → PRD → Design-Spec → BDD → Tech-Docs → Code → Dev self-check → QC automation → Tester feedback.** Phần sau mô tả từng phase và **step-architecture model** đằng sau mỗi command.
 
 ## Mục lục
@@ -24,8 +24,8 @@ Vòng đời feature đi qua các phase, mỗi transition có một **AI review 
 |-------|-----|----------|--------|
 | **0. Setup** *(one-time)* | Tech Lead | `/setup-ai-first`, `/sync`, `/sync-figma-*` | Config files, submodules, component catalog |
 | **1. Discovery** | PO + AI | `/define-product` | `specs/product-definition/{TICKET-ID}-{slug}.md` |
-| **2. PRD** | AI → SA/PO review | `/generate-prd`, `/refine-prd`, `/review-context` | `specs/{domain}/{prd-slug}/prd.md` |
-| **2b. Design Spec** *(FE/App only)* | AI → Designer/PO sign-off | `/generate-design-spec` | `specs/{domain}/{prd-slug}/design-spec/{TICKET-ID}-design-spec-{platform}.md` |
+| **2. PRD** | AI → SA/PO review | `/generate-prd`, `/refine-prd`, `/review-context` | `specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md` |
+| **2b. Design Spec** *(FE/App only)* | AI → Designer/PO sign-off | `/generate-design-spec` | `specs/{domain}/{prd-slug}/design-spec/{TICKET-ID}-design-spec-{platform}-{slug}.md` |
 | **3. BDD Spec** | AI → SA/Dev review | `/generate-bdd`, `/review-context` | `specs/{domain}/{prd-slug}/bdd/{UC-ID}.feature` |
 | **4. Tech Design** *(platform-aware)* | AI → SA/Lead review | `/generate-tech-docs`, `/review-tech-docs` | BE: `specs/{domain}/{prd-slug}/tech-docs/{UC-ID}-tech-design.md` (API contract) · FE/App: `{UC-ID}-tech-design-{platform}.md` (client design — **gated** trên System BDD + BE contract) |
 | **5. Code** | AI → Dev review | `/generate-code` *(FE: `--phase=ui`/`--phase=integration`)*, `/review-code` | `src/...` |
@@ -36,6 +36,8 @@ Vòng đời feature đi qua các phase, mỗi transition có một **AI review 
 | **Cross-cutting** | Any role | `/sync`, `/learn`, `/update-framework` | Synced repo · project guardrails · upgraded tooling |
 
 > **PRD là platform-agnostic (Option C):** Một PRD phục vụ mọi platform — chỉ mô tả business outcome, không UI/API. FE/App: PRD → Design Spec (2b) → BDD. BE: PRD → BDD (skip 2b). Thêm platform sau không cần đổi PRD.
+
+> **Cổng duyệt (human sign-off):** mỗi transition lớn có một **cổng do người quyết** — review (AI tìm findings) → người đặt trạng thái `approved` → bước sau. Ba cổng: **PRD** `Status: approved` (PO) · **Design Spec** `Status: approved` (PO+Designer) · **BDD** `@trace.status: approved` (Dev-lead). **Sửa nội dung sau khi duyệt → tự reset về `draft`** (PRD/Design/BDD đều vậy). Các lệnh tiêu thụ (`/generate-bdd`, `/generate-design-spec`, `/generate-tech-docs`, `/generate-code`, `/qc-analyze`) **cảnh báo mềm** nếu nguồn chưa `approved` (cho phép prototype, KHÔNG chặn cứng). Mỗi artifact còn ghi version nguồn để phát hiện **drift**: PRD `applied_to_version` (findings), Design Spec `Built from PRD`, BDD/tech-doc Version Check.
 
 ---
 
@@ -48,29 +50,30 @@ Phase 1: Discovery
          business rules → business logic → AC → validation matrix)
 
 Phase 2: PRD
-  /generate-prd ────────────→ specs/{domain}/{prd-slug}/prd.md
+  /generate-prd ────────────→ specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md
   /refine-prd ──────────────→ .agent/review/{prd-slug}-findings.yaml
                   [Review Board: Accept/Modify/Reject]
                 /refine-prd --resume → apply + bump version
   /review-context {prd} ────→ .agent/review/{prd-slug}-review-context-findings.yaml
        --fix (auto-fixable)  |  Review Board → --resume (apply + bump)
        Checks: banned terms (P1) · ambiguity AC/BR (P2) · conflicts (P3) · completeness (P4)
-       ✅ APPROVED → Phase 3   ·   ❌ NEEDS_FIX → fix + re-run
+       ✅ 0 critical → PO đặt Status: approved (Metadata) → Phase 2b/3   ·   ❌ NEEDS_FIX → fix + re-run
 
 Phase 2b/3: Design Spec & BDD
-  /generate-design-spec ────→ specs/{domain}/{prd-slug}/design-spec/{TICKET-ID}-design-spec-{platform}.md
+  /generate-design-spec ────→ specs/{domain}/{prd-slug}/design-spec/{TICKET-ID}-design-spec-{platform}-{slug}.md
        (FE/App only — PO supplies node-level Figma link ?node-id= per screen;
-        AI fetches each frame via Figma MCP. Screen with no readable link → ❌ Missing;
-        sign-off + /generate-bdd blocked tới khi mọi screen có link)
-              [Designer review + PO sign-off]
+        AI fetches each frame via Figma MCP. Screen with no readable link → ❌ Missing → Status giữ draft;
+        ghi "Built from PRD: vX" để phát hiện lỗi thời; generate-bdd cảnh báo mềm nếu design-spec chưa approved)
+              [Designer review + PO sign-off → Status: approved]
   /generate-bdd ────────────→ specs/{domain}/{prd-slug}/bdd/{UC-ID}.feature
        THỨ TỰ OUTSIDE-IN (khi có client): web → app → system
          System BDD được TỔNG HỢP từ web+app BDD (client-facing trước → BE/system suy ra để phục vụ)
          (project chỉ-BE, không web/app: system gen thẳng từ PRD)
        (apply platform vocabulary: web "clicks" / mobile "taps" / backend "submits a request")
+       FE/App: đọc AC-UI + Screen States từ design-spec để phủ scenario (gate: approved + Built-from-PRD còn mới + sanity)
   /review-context {feature} → .agent/review/{uc-id}-review-bdd-findings.yaml
        Checks: PRD coverage (mỗi AC + BR bullet → ≥1 scenario) · Gherkin R1–R10 · compliance C1–C5
-       ✅ APPROVED → Phase 4
+       ✅ 0 critical → đặt @trace.status: approved (.feature) → Phase 4
 
 Phase 4: Tech Design  (platform-aware — đọc @trace.platform)
   BE (system):
@@ -124,7 +127,7 @@ Cross-cutting (any role, anytime)
 
 ## QC automation pipeline (Phase 5b)
 
-Bộ test QC **chính thức** — native pipeline, chạy như một **branch sau khi BDD được approve** (`/review-context` (BDD) APPROVED), song song / sau khi dev `/generate-code`. 6 stage tuần tự, port từ agent của team QC (QC repo nay chỉ còn reference):
+Bộ test QC **chính thức** — native pipeline, chạy như một **branch sau khi BDD `@trace.status: approved`** (review-context BDD sạch + người duyệt; `/qc-analyze` cảnh báo mềm nếu chưa), song song / sau khi dev `/generate-code`. 6 stage tuần tự, port từ agent của team QC (QC repo nay chỉ còn reference):
 
 ```
 BDD approved (specs/{domain}/{prd-slug}/bdd/*.feature)
@@ -180,7 +183,7 @@ Mọi command bắt đầu ở đây, theo thứ tự:
 ```
 CHECKPOINT
 -----------
-Target     : specs/auth/FEAT-042-login/prd.md
+Target     : specs/auth/FEAT-042-login/FEAT-042-login.md
 Project    : My App
 Tech stack : TypeScript / React 18
 Module     : react

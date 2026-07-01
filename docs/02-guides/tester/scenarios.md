@@ -16,7 +16,7 @@ git pull && git submodule update --remote --recursive
 # 3. Kiểm tra status
 # FT-042:
 #   status: approved  ← ✅ có thể test
-#   prd: "specs/payment/FT-042-checkout/prd.md"
+#   prd: "specs/payment/FT-042-checkout/FT-042-checkout.md"
 #   bdd:
 #     be:  "free-trial-specs/specs/payment/FT-042-checkout/bdd/system/FT-042-UC1-checkout-system.feature"
 #     web: "free-trial-specs/specs/payment/FT-042-checkout/bdd/web/FT-042-UC1-checkout-web.feature"

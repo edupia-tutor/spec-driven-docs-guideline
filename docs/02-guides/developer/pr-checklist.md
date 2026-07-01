@@ -7,6 +7,7 @@
 - [ ] `/review-code` → không có issue Critical hoặc Major chưa xử lý
 - [ ] Code trace về đúng BDD scenarios trong `my-project-specs/specs/{domain}/{prd-slug}/bdd/`
 - [ ] Code có `@trace.bdd` comment cho các function implement BDD scenario
+- [ ] BDD `@trace.status: approved` (đã duyệt) trước khi code/PR; FE/App: Design Spec `Status: approved` + `Built from PRD` khớp PRD hiện tại
 - [ ] Tech Docs đã được update nếu có thay đổi API/DB schema
 - [ ] **Không tự sửa BDD** — BDD là của PO, nếu cần update thì báo PO rồi pull lại
 

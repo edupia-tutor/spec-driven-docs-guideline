@@ -4,14 +4,14 @@
 
 ## Spec-Manifest Là Gì Và Tại Sao Cần
 
-Trong umbrella repo (có `spec_source`), **mọi spec đều nằm trong spec submodule** — gom theo feature-package: mỗi PRD có một thư mục `specs/{domain}/{prd-slug}/` chứa tất cả artifact (`prd.md`, `bdd/{platform}/`, `tech-docs/`, `design-spec/`), trải trên nhiều domain:
+Trong umbrella repo (có `spec_source`), **mọi spec đều nằm trong spec submodule** — gom theo feature-package: mỗi PRD có một thư mục `specs/{domain}/{prd-slug}/` chứa tất cả artifact (`{TICKET-ID}-{prd-slug}.md`, `bdd/{platform}/`, `tech-docs/`, `design-spec/`), trải trên nhiều domain:
 
 ```
 free-trial-umbrella/                              ← umbrella (Claude Code mở ở đây)
 ├── free-trial-specs/                             ← SPEC submodule — TẤT CẢ spec ở đây
 │   └── specs/
 │       └── auth/FT-001-login/                    ← feature-package (1 PRD = 1 thư mục)
-│           ├── prd.md                            ← PRD
+│           ├── {TICKET-ID}-{prd-slug}.md                            ← PRD
 │           ├── design-spec/...                   ← Design Spec
 │           ├── bdd/system/...                    ← BDD System (BE)
 │           ├── bdd/web/...                        ← BDD Web (FE)
@@ -30,7 +30,7 @@ features:
   FT-001:
     domain: auth
     status: approved
-    prd: "specs/auth/FT-001-login/prd.md"
+    prd: "specs/auth/FT-001-login/FT-001-login.md"
     pdd: "specs/product-definition/auth/FT-001-def.md"
     tech_docs:
       be:  "free-trial-specs/specs/auth/FT-001-login/tech-docs/FT-001-UC1-auth-api.md"

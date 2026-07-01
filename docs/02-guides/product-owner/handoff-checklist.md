@@ -5,10 +5,10 @@
 Trước khi thông báo dev team bắt đầu, kiểm tra:
 
 **Metadata:**
-- [ ] `@trace.id` có và đúng format (vd: FEAT-01)
-- [ ] `@trace.domain` có và khớp với domain names đã thống nhất với dev team
-- [ ] `@trace.status: approved` (không phải draft/in-review)
-- [ ] `@trace.version` có (vd: 1.0)
+- [ ] Row `Ticket` (bảng Metadata) có và đúng format (vd: FEAT-01)
+- [ ] Row `Domain` có và khớp với domain names đã thống nhất với dev team
+- [ ] Row `Status` = `approved` (không phải draft)
+- [ ] Row `Version` có (vd: 1.0)
 
 **Nội dung PRD:**
 - [ ] Tất cả `{{PLACEHOLDER}}` đã được điền
@@ -23,7 +23,7 @@ Trước khi thông báo dev team bắt đầu, kiểm tra:
 - [ ] Không có P3 conflict với PRD khác trong cùng domain
 
 **Cho FE/App thêm:**
-- [ ] Design Spec đã tạo và `@trace.status: approved` (không còn `draft`)
+- [ ] Design Spec đã tạo và `Status: approved` trong Metadata (không còn `draft`)
 - [ ] Mỗi screen có Figma link node-level (`?node-id=`) — không screen nào bị flag ❌ Missing
 - [ ] Designer đã sign-off (gate này bị BLOCKED nếu còn screen thiếu node-id link)
 
@@ -34,7 +34,7 @@ Trước khi thông báo dev team bắt đầu, kiểm tra:
 - [ ] Tất cả BDD files đã được review và không có `MISSING` trong Coverage Matrix
 
 **Git:**
-- [ ] Đã commit và push toàn bộ feature-package (`specs/{domain}/{prd-slug}/` — gồm `prd.md`, `design-spec/`, `bdd/`) lên spec repo
+- [ ] Đã commit và push toàn bộ feature-package (`specs/{domain}/{prd-slug}/` — gồm `{TICKET-ID}-{prd-slug}.md`, `design-spec/`, `bdd/`) lên spec repo
 - [ ] Thông báo dev team domain name và BDD path để họ cập nhật `git submodule update --remote`
 
 ---

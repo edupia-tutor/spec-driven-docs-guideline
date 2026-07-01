@@ -8,11 +8,11 @@
 | `/update-framework` | Nâng cấp **bản thân framework** (`.agent/commands/`, steps/, modules/) từ npm | Khi có version framework mới — không đụng project-context/CLAUDE.md |
 | `/review-context {prd-file}` | Đọc + xác nhận PRD + BDD đủ rõ trước khi code — fan-out review dimension thành sub-agent song song + completeness-critic loop, findings file đầy đủ ngay trong 1 lần chạy | **Bước đầu tiên** khi nhận PRD mới |
 | `/generate-tech-docs {feature-file}` | **Platform-aware.** BE (`system`): API contract (endpoints, DB, caching). FE/App (`web`/`app`): client design (components, state, API-integration map theo BE contract, routing) — **GATED**: cần System BDD + BE contract approved trước, nếu thiếu sẽ HALT | BE: sau khi đọc System BDD. FE: sau `--phase=ui`, khi BE contract đã approved |
-| `/generate-code {bdd-file}` | Sinh code — BE hoặc FE khi API đã sẵn sàng | Sau khi tech docs `approved` |
+| `/generate-code {bdd-file}` | Sinh code — BE hoặc FE khi API đã sẵn sàng. Guard mềm: BDD `@trace.status` approved; FE/App design-spec approved+fresh+sanity | Sau khi tech docs `approved` |
 | `/generate-code {bdd-file} --phase=ui` | FE: gen UI + mock adapter. Mock **shape** từ BE contract nếu có (chuẩn) → else infer từ System BDD + warn (`mock_source=contract\|system-bdd`); fixture values luôn từ System BDD | Ngay sau khi đọc BDD (BE chưa cần deploy API) |
 | `/generate-code {bdd-file} --phase=integration` | FE: wire API thật thay mock | Sau khi sign-off gate `approved` |
 | `/dev-gen-test {bdd-file}` | **Dev self-check** — sinh test cases từ BDD để dev tự verify code mình vừa gen (KHÔNG phải bộ test chính thức của QC/dev-team) | Song song hoặc sau generate-code |
-| `/review-code {file}` | Review code theo 4 lens (Security/Perf/Arch/Test) | Trước khi tạo PR |
+| `/review-code {file}` | Review code theo 4 lăng kính (Traceability/Layer/Coding Standards/Spec Compliance) | Trước khi tạo PR |
 | `/review-tech-docs {tech-doc-file}` | Review chất lượng Tech Docs | Sau generate-tech-docs |
 | `/dev-run-test` | **Dev self-check** — chạy test do dev tự gen để xác nhận code mình hoạt động (smoke/self-verify, KHÔNG phải coverage chính thức) — *umbrella mode: tự `cd` vào service_root, dùng service's `test_command`*. Ghi `dev_selftest` (pass/fail) vào trace TSV | Sau khi code + tests sẵn sàng |
 | `/fix-bug {issue}` | Phân tích + fix bug có trace | Khi có bug report |
@@ -53,7 +53,7 @@ Tester gửi bug report (`/report-bug`) và đề xuất scenario (`/propose-sce
 
 Dev hành động theo phân loại:
 - **Bug report** → `/fix-bug {BUG-ID}` (report đã có sẵn spec-context + AC bị vi phạm + layer)
-- **Scenario proposal map vào AC sẵn có** → thêm scenario vào `.feature` (hoặc `/generate-bdd` lại), rồi `/generate-code` + `/dev-gen-test`
+- **Scenario proposal map vào AC sẵn có** → đặt `Status: accepted` trong file proposal → `/generate-bdd` tự chèn vào `.feature` rồi lưu trữ (`incorporated`); hoặc thêm tay. Rồi `/generate-code` + `/dev-gen-test`
 - **Proposal là yêu cầu mới (PRD change request)** → chuyển PO sửa PRD trước
 
 > Bug reports có thể đến từ hai nguồn: Tester dùng `/report-bug` trực tiếp, **hoặc** từ kết quả QC automation (`qc_status: fail` trong `.trace/*.tsv` → QC (hoặc tester) chạy `/report-bug` → `/sync` → dev thấy tại đây). Cả hai đều dùng cùng luồng `/fix-bug`.

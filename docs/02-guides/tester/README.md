@@ -57,7 +57,7 @@ Design Spec           Code                    Viết test cases · chạy /qc-*
 
 | Command | Mục đích | Khi nào dùng |
 |---|---|---|
-| `/qc-analyze` | Phân tích spec chain (PRD + BDD + Tech Docs), xác định scope test | Bước 1, sau khi BDD đã approved |
+| `/qc-analyze` | Phân tích spec chain (PRD + BDD + Tech Docs), xác định scope test | Bước 1, sau khi BDD `@trace.status: approved` (cảnh báo mềm nếu chưa) |
 | `/qc-plan` | Lập test plan: liệt kê scenarios, layer, ưu tiên | Bước 2 |
 | `/qc-design-test` | Thiết kế test case chi tiết (Page Object, data, assertions) | Bước 3 |
 | `/qc-review` | Review test design trước khi code automation | Bước 4 |

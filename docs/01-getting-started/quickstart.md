@@ -42,19 +42,20 @@ Discovery → PRD → BDD → Tech Design → Code → Dev self-check:
 
 # PHASE 2 — PRD
 /generate-prd specs/product-definition/{slug}.md
-    → specs/{domain}/{prd-slug}/prd.md
-/refine-prd specs/{domain}/{prd-slug}/prd.md         # AI suggestions → Review Board
-/refine-prd --resume specs/{domain}/{prd-slug}/prd.md  # apply + bump version
-/review-context specs/{domain}/{prd-slug}/prd.md      # quality gate (P1–P4)
-/review-context --resume specs/{domain}/{prd-slug}/prd.md
-    → ✅ APPROVED → tiếp Phase 3
+    → specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md
+/refine-prd specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md         # AI suggestions → Review Board
+/refine-prd --resume specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md  # apply + bump version
+/review-context specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md      # quality gate (P0–P5)
+/review-context --resume specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md
+    → ✅ 0 critical → PO đặt | **Status** | approved | trong Metadata → tiếp Phase 3
 
 # PHASE 3 — SPEC & DESIGN
-# (FE/App only) /generate-design-spec specs/{domain}/{prd-slug}/prd.md → designer + PO sign-off
-/generate-bdd specs/{domain}/{prd-slug}/prd.md
+# (FE/App only) /generate-design-spec specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md → designer + PO sign-off
+/generate-bdd specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md
     → specs/{domain}/{prd-slug}/bdd/{UC-ID}.feature
 /review-context specs/{domain}/{prd-slug}/bdd/{UC-ID}.feature
-/review-context --resume specs/{domain}/{prd-slug}/bdd/{UC-ID}.feature   # apply + bump bdd_version
+/review-context --resume specs/{domain}/{prd-slug}/bdd/{UC-ID}.feature   # apply + bump bdd_version + reset @trace.status draft
+    → ✅ 0 critical → đặt # @trace.status: approved trong .feature → tiếp Tech Design
 /generate-tech-docs specs/{domain}/{prd-slug}/bdd/{UC-ID}.feature
     → specs/{domain}/{prd-slug}/tech-docs/{UC-ID}-tech-design.md
 /review-tech-docs specs/{domain}/{prd-slug}/tech-docs/{UC-ID}-tech-design.md

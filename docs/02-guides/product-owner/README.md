@@ -10,6 +10,8 @@ Tài liệu dành cho **Product Owner (PO)** và **Business Analyst (BA)** — v
 |---|---|
 | [Commands](commands.md) | Bảng lệnh cho PO/BA · project lessons · xử lý feedback tester |
 | [Tình huống thực tế](scenarios.md) | 12 scenario: tính năng mới, design spec, BDD, PRD thay đổi, brownfield, **System BDD synthesis & cross-platform conflict**, ... |
+| [Checklist input PRD](../prd-input-checklist.md) | 7 câu chuẩn bị để PRD chuẩn ngay lần đầu (kèm lưu ý BE) |
+| [Checklist input BDD (System/BE)](../bdd-input-checklist.md) | Chuẩn bị để `/generate-bdd` (system) chuẩn ngay lần đầu |
 | [Quy tắc viết PRD](prd-writing-rules.md) | Platform-agnostic · testable AC · negative path · BR numbering |
 | [Checklist handoff](handoff-checklist.md) | Checklist verify trước khi thông báo dev team bắt đầu |
 
@@ -32,8 +34,8 @@ PO/BA                     Dev team
 
 **PO/BA chịu trách nhiệm:**
 - Đảm bảo PRD platform-agnostic (không chứa UI details hay API specs)
-- Đặt `@trace.domain` đúng để dev team routing hoạt động
-- Cập nhật `@trace.status: approved` trước khi handoff
+- Đặt row `Domain` (bảng Metadata) đúng để dev team routing hoạt động
+- Cập nhật `Status: approved` (bảng Metadata) trước khi handoff
 - **Generate BDD cho tất cả platforms** theo thứ tự **outside-in: web → app → system** — System BDD được **tổng hợp từ web+app BDD** (project chỉ-BE thì system gen thẳng từ PRD). Xem [scenarios](scenarios.md).
 - Thông báo dev team khi có PRD hoặc BDD mới/update
 
@@ -51,7 +53,7 @@ PRD (WHAT + WHY)  →  BDD (HOW verified)  →  Code (HOW built)
    spec repo          spec repo             dev repo
 ```
 
-> **Sau khi BDD approved → QC chạy pipeline tự động:** Khi BDD của một UC được approve, QC team chạy bộ lệnh native `/qc-analyze → /qc-plan → /qc-design-test → /qc-review → /qc-run-test → /qc-report` — đọc official `.feature`, generate + run Playwright/pytest, rồi ghi `qc_status` (official QC coverage) vào Living Docs. PO không chạy QC, nhưng nên biết bước này tồn tại ở downstream. Chi tiết: [chương QC Automation](../tester/qc-automation.md).
+> **Sau khi BDD approved → QC chạy pipeline tự động:** Khi BDD của một UC được duyệt (đặt `@trace.status: approved` sau review-context BDD sạch), QC team chạy bộ lệnh native `/qc-analyze → /qc-plan → /qc-design-test → /qc-review → /qc-run-test → /qc-report` — đọc official `.feature`, generate + run Playwright/pytest, rồi ghi `qc_status` (official QC coverage) vào Living Docs. PO không chạy QC, nhưng nên biết bước này tồn tại ở downstream. Chi tiết: [chương QC Automation](../tester/qc-automation.md).
 
 **3 lý do chính BDD thuộc PO:**
 

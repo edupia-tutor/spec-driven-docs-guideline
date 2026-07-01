@@ -58,7 +58,7 @@ LAYER 5 — OUTPUT                          (artifacts in consumer proj)
   Spec module (cross-team, via {spec_source}):
     specs/product-definition/
     specs/{domain}/{prd-slug}/ — feature package gom mọi artifact của một PRD:
-      prd.md · bdd/ (web/app/system) · tech-docs/ (API contract + FE tech-design) · design-spec/
+      {TICKET-ID}-{prd-slug}.md · bdd/ (web/app/system) · tech-docs/ (API contract + FE tech-design) · design-spec/
     feedback/
     .trace/{domain}/{prd-slug}/*.tsv (authoritative, committed — một chỗ cho PM) · .living-docs/ (gitignored)
   Service submodule (per-service):
@@ -76,10 +76,10 @@ LAYER 5 — OUTPUT                          (artifacts in consumer proj)
 
 ## Data flow — một command chạy như thế nào
 
-Ví dụ `/generate-bdd specs/payment/process-payment/prd.md`:
+Ví dụ `/generate-bdd specs/payment/process-payment/{TICKET-ID}-process-payment.md`:
 
 ```
-User types: /generate-bdd specs/payment/process-payment/prd.md
+User types: /generate-bdd specs/payment/process-payment/{TICKET-ID}-process-payment.md
   │
 [L0] data-guard.js check tool calls real-time → đọc .env/*.key → BLOCK + warn
   │

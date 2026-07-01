@@ -51,7 +51,7 @@ sc_id	sc_title	spec_ver	gen_ver	implemented_by	test_count	test_classes	dev_selft
 | 16 | `tech_doc_revision` | **BE** API-contract revision tại thời điểm codegen | `—` | generate-code / review-tech-docs (BE doc) |
 | 17 | `fe_tech_doc_revision` | **FE** client tech-design revision (`{UC-ID}-tech-design-{platform}.md`) tại thời điểm FE integration | `—` | generate-code `--phase=integration` / review-tech-docs (FE doc) |
 | 18 | `prd_status` | `\| **Status** \|` từ PRD metadata | từ PRD | generate-bdd |
-| 19 | `uc_status` | Trạng thái UC: `draft` / `approved` / … | `draft` (UC mới) | generate-bdd |
+| 19 | `uc_status` | Trạng thái duyệt BDD của UC — **gương của `@trace.status`** (`.feature`): `draft` / `approved` | `draft` (UC mới) | generate-bdd (init) · validate-traces (sync ← `@trace.status`) · review-context (reset draft khi `--fix`/`--resume`) |
 | 20 | `fe_phase` | FE phase khi implement (`ui` / `integration`) | `—` | generate-code `--phase` |
 | 21 | `status` | Trạng thái tổng hợp: `OK` / `DRIFT` / `GAP` / `UNTRACKED` | `UNTRACKED` | validate-traces |
 | 22 | `last_updated` | Ngày update gần nhất (`YYYY-MM-DD`) | today | mọi command ghi row |
@@ -105,6 +105,7 @@ Mọi artifact link với nhau qua `@trace.*` tags.
 # @trace.id: FEAT-001-UC1
 # @trace.service: web-admin
 # @trace.module: react
+# @trace.status: draft          # draft/approved — người đặt approved sau review-context BDD sạch; mirror → uc_status
 # @trace.prd_version: 1.2
 # @trace.bdd_version: 3
 # @trace.api_source: existing   # brownfield: API đã tồn tại, contract lấy từ PRD

@@ -20,11 +20,11 @@ Output: `specs/product-definition/FEAT-01-login.md`
 ```
 Agent tự động: đọc product definition · expand thành PRD đầy đủ với UC, AC, BR · nhắc nếu bạn viết UI details · kiểm tra terminology với business-dictionary.
 
-Output: `specs/auth/FEAT-01-login/prd.md`
+Output: `specs/auth/FEAT-01-login/FEAT-01-login.md`
 
 **Bước 3 — Review nội dung:**
 ```
-/refine-prd specs/auth/FEAT-01-login/prd.md
+/refine-prd specs/auth/FEAT-01-login/FEAT-01-login.md
 ```
 Agent fan-out 4 lens (QA/DEV/SA/PO) chạy song song, rồi chạy completeness-critic loop cho đến khi một vòng không tìm ra finding mới, cuối cùng dedup + resolve conflict. Findings đầy đủ trong 1 lần chạy.
 
@@ -33,33 +33,33 @@ Mở findings file, xem xét từng finding: `accepted` → apply · `modified` 
 > **Finding khó hiểu? Bấm 💬 Giải thích.** Nếu một finding mô tả nặng tính kỹ thuật, dùng nút **💬 Giải thích** trên Review Board (extension Spec Driven Docs Tools). Claude sẽ giải thích lại bằng ngôn ngữ no-tech + đề xuất phương án cụ thể (cover cả edge case) ngay trong terminal, và **chờ bạn confirm trước khi apply** vào PRD — tránh refine nhiều vòng. Prompt sửa được qua setting `reviewBoard.clarifyPrompt` (không cần cài lại extension).
 
 ```
-/review-context --resume specs/auth/FEAT-01-login/prd.md
+/review-context --resume specs/auth/FEAT-01-login/FEAT-01-login.md
 ```
 
 **Bước 4 — Final check:**
 ```
-/review-context specs/auth/FEAT-01-login/prd.md
+/review-context specs/auth/FEAT-01-login/FEAT-01-login.md
 ```
-Kiểm tra: `@trace.status`, `@trace.domain`, completeness.
+Kiểm tra: `Status`, `Domain` (bảng Metadata), completeness.
 
 **Bước 5 — Approve PRD:**
 ```yaml
-# Trong file PRD, cập nhật:
-@trace.status: approved
-@trace.version: 1.0
+# Trong bảng Metadata của PRD, cập nhật:
+#   | **Status**  | approved |
+#   | **Version** | 1.0      |
 ```
 
 **Bước 6 — Tạo Design Spec (FE/App):**
 ```
-/generate-design-spec specs/auth/FEAT-01-login/prd.md
+/generate-design-spec specs/auth/FEAT-01-login/FEAT-01-login.md
 ```
 Agent hỏi platform (web / app). PO phải cung cấp **Figma link node-level** (URL chứa `?node-id=`, lấy bằng right-click vào frame → "Copy link to selection") cho **mỗi screen**. Screen nào thiếu link → bị flag ❌ Missing, Status giữ `draft`, `/generate-bdd` bị BLOCKED cho đến khi đủ link.
 
-Sau khi Designer review + confirm đủ Figma node-id links → `@trace.status: approved`.
+Sau khi Designer review + confirm đủ Figma node-id links → đặt `Status: approved` trong Metadata Design Spec.
 
 **Bước 7 — Generate BDD:**
 ```
-/generate-bdd specs/auth/FEAT-01-login/prd.md
+/generate-bdd specs/auth/FEAT-01-login/FEAT-01-login.md
 ```
 Agent hỏi: **"Platform? (1) web  (2) app  (3) system"**
 - Chọn `web` → `specs/auth/FEAT-01-login/bdd/web/FEAT-01-UC1-login-web.feature`
@@ -84,7 +84,7 @@ git push
 
 ```
 /define-product         → product definition
-/generate-prd           → PRD với @trace.domain: auth
+/generate-prd           → PRD với Domain: auth (bảng Metadata)
 /review-context --fix   → auto-fix
 /generate-design-spec   → design spec cho FE (nếu có designer)
 /generate-bdd → web     → specs/auth/FEAT-01-login/bdd/web/
@@ -111,15 +111,15 @@ git push
 
 **Bước 1 — Design Spec:**
 ```
-/generate-design-spec specs/auth/FEAT-01-login/prd.md
+/generate-design-spec specs/auth/FEAT-01-login/FEAT-01-login.md
 ```
 Output: `specs/auth/FEAT-01-login/design-spec/FEAT-01-design-spec-web.md`
 
-Mỗi screen cần Figma link node-id. Screen thiếu → flag ❌ Missing, BLOCKED. Sau khi Designer review → `@trace.status: approved`.
+Mỗi screen cần Figma link node-id. Screen thiếu → flag ❌ Missing, BLOCKED. Sau khi Designer review → đặt `Status: approved` trong Metadata Design Spec.
 
 **Bước 2 — Generate BDD:**
 ```
-/generate-bdd specs/auth/FEAT-01-login/prd.md
+/generate-bdd specs/auth/FEAT-01-login/FEAT-01-login.md
 ```
 
 | Lần | Platform | Output |
@@ -147,12 +147,12 @@ cat .agent/review/FEAT-01-login-prd-review-context-findings.yaml
 
 **Bước 3 — Apply:**
 ```
-/review-context --resume specs/auth/FEAT-01-login/prd.md
+/review-context --resume specs/auth/FEAT-01-login/FEAT-01-login.md
 ```
 
 **Bước 4 — Re-review:**
 ```
-/review-context specs/auth/FEAT-01-login/prd.md
+/review-context specs/auth/FEAT-01-login/FEAT-01-login.md
 ```
 Lặp lại cho đến khi `recommendation: APPROVED`.
 
@@ -162,28 +162,29 @@ Lặp lại cho đến khi `recommendation: APPROVED`.
 
 **Bước 1 — Đổi status về draft:**
 ```yaml
-@trace.status: draft
+# Trong bảng Metadata PRD:
+#   | **Status** | draft |
 ```
 
 **Bước 2 — Sửa nội dung:**
 ```
-/refine-prd specs/auth/FEAT-01-login/prd.md "Thêm yêu cầu: hỗ trợ đăng nhập bằng OTP"
+/refine-prd specs/auth/FEAT-01-login/FEAT-01-login.md "Thêm yêu cầu: hỗ trợ đăng nhập bằng OTP"
 ```
 
 **Bước 3 — Review lại:**
 ```
-/review-context specs/auth/FEAT-01-login/prd.md
+/review-context specs/auth/FEAT-01-login/FEAT-01-login.md
 /review-context --resume    (nếu cần fix)
 ```
 
 **Bước 4 — Approve và thông báo:**
 ```yaml
-@trace.status: approved
-@trace.version: 1.1     # minor bump vì chỉ thêm AC
-                         # major bump (2.0) nếu thay đổi cơ bản
+# Trong bảng Metadata PRD:
+#   | **Status**  | approved |
+#   | **Version** | 1.1      |   # minor bump (chỉ thêm AC); major (2.0) nếu thay đổi cơ bản
 ```
 ```bash
-git add specs/auth/FEAT-01-login/prd.md
+git add specs/auth/FEAT-01-login/FEAT-01-login.md
 git commit -m "feat(auth): update FEAT-01 PRD v1.1 — add OTP login AC"
 git push
 ```
@@ -225,7 +226,7 @@ services:
     specs_dir: "loyalty-service/specs/bdd"
 ```
 
-**Bước 3 — Viết PRD bình thường với `@trace.domain: loyalty`.**
+**Bước 3 — Viết PRD bình thường với `Domain: loyalty` (bảng Metadata).**
 
 > **Lưu ý:** Nếu dev team chưa cập nhật services config → `/review-context` P0 check sẽ cảnh báo domain không match.
 
@@ -239,7 +240,7 @@ services:
 2. Quyết định PRD nào đúng.
 3. Sửa file:
    ```
-   /review-context --resume specs/auth/FEAT-01-login/prd.md
+   /review-context --resume specs/auth/FEAT-01-login/FEAT-01-login.md
    # với finding P3: modified: "session timeout cập nhật thành 2 giờ theo FEAT-05"
    ```
 4. Cả 2 PRD phải nhất quán trước khi dev team generate BDD.
@@ -268,20 +269,20 @@ git push
 ```
 specs/
 ├── auth/
-│   ├── FEAT-01-login/prd.md          (approved)
-│   └── FEAT-08-sso/prd.md            (draft)
+│   ├── FEAT-01-login/FEAT-01-login.md          (approved)
+│   └── FEAT-08-sso/FEAT-08-sso.md            (draft)
 ├── payment/
-│   ├── FEAT-03-checkout/prd.md       (approved)
-│   └── FEAT-11-refund/prd.md         (draft)
+│   ├── FEAT-03-checkout/FEAT-03-checkout.md       (approved)
+│   └── FEAT-11-refund/FEAT-11-refund.md         (draft)
 └── loyalty/
-    └── FEAT-06-points/prd.md         (in-review)
+    └── FEAT-06-points/FEAT-06-points.md         (in-review)
 ```
 
 **Gợi ý:** Hoàn thiện 1 PRD đến `approved` trước khi bắt đầu PRD tiếp theo. Chỉ PRD `approved` mới được dev team sử dụng.
 
 ```bash
 # Xem nhanh tất cả PRDs và status:
-grep -r "@trace.status" specs/ --include="prd.md"
+grep -rn "\*\*Status\*\*" specs/ --include="*.md"
 ```
 
 ---
@@ -290,14 +291,15 @@ grep -r "@trace.status" specs/ --include="prd.md"
 
 **Checklist trước khi thông báo:**
 ```yaml
-@trace.id: FEAT-01          ✅ có
-@trace.domain: auth         ✅ khớp với services keys của dev team
-@trace.status: approved     ✅ đã approved
-@trace.version: 1.0         ✅ có version number
+# Bảng Metadata PRD:
+#   | **Ticket**  | FEAT-01  |   ✅ có (đúng format)
+#   | **Domain**  | auth     |   ✅ khớp services keys của dev team
+#   | **Status**  | approved |   ✅ đã approved
+#   | **Version** | 1.0      |   ✅ có version number
 ```
 
 ```
-/review-context specs/auth/FEAT-01-login/prd.md
+/review-context specs/auth/FEAT-01-login/FEAT-01-login.md
 → Phải thấy recommendation: APPROVED và 0 critical findings
 ```
 
@@ -306,13 +308,13 @@ grep -r "@trace.status" specs/ --include="prd.md"
 [FEAT-01] PRD Login đã approved — sẵn sàng implement
 
 Domain: auth
-File: my-project-specs/specs/auth/FEAT-01-login/prd.md
+File: my-project-specs/specs/auth/FEAT-01-login/FEAT-01-login.md
 Version: 1.0
 Design Spec (Web): my-project-specs/specs/auth/FEAT-01-login/design-spec/FEAT-01-design-spec-web.md
 
 Lệnh để bắt đầu:
   git submodule update --remote my-project-specs
-  /review-context my-project-specs/specs/auth/FEAT-01-login/prd.md
+  /review-context my-project-specs/specs/auth/FEAT-01-login/FEAT-01-login.md
 ```
 
 ---

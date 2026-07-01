@@ -10,6 +10,8 @@ Tài liệu dành cho **Developer (FE / BE / App)** — vai trò, commands, trac
 |---|---|
 | [Commands](commands.md) | Bảng lệnh cho dev · project lessons · xử lý feedback tester · khi nào dùng `--phase` |
 | [BDD & Trace System](bdd-and-trace.md) | Tại sao BDD quan trọng với dev · `@trace.*` fields · trace chain · khi nào `/validate-traces` |
+| [Checklist input BDD (System/BE)](../bdd-input-checklist.md) | Chuẩn bị để `/generate-bdd` (system) chuẩn ngay lần đầu |
+| [Checklist input Tech-Docs (BE)](../tech-docs-input-checklist.md) | BDD khác tech-doc thế nào · chuẩn bị để `/generate-tech-docs` (BE) ra API contract chuẩn lần đầu |
 | [Workflow](workflow.md) | Luồng làm việc cơ bản từ nhận PRD đến tạo PR |
 | [Tình huống thực tế](scenarios.md) | 8 scenario: nhận PRD mới, đọc System/Web BDD, PRD đổi, API sign-off, bug từ tester, design spec, brownfield, umbrella, validate-traces |
 | [Checklist trước khi tạo PR](pr-checklist.md) | Checklist verify trước khi mở PR |
@@ -34,6 +36,7 @@ PO/BA                     Dev
 - Đọc và hiểu PRD + BDD từ spec submodule trước khi bắt đầu
 - **KHÔNG tự generate BDD** — BDD đã được PO generate trong spec repo
 - Đảm bảo code trace về đúng BDD scenario, BDD trace về đúng PRD
+- **Duyệt BDD:** sau khi `/review-context` (BDD) sạch critical, Dev-lead/SA đặt `# @trace.status: approved` trong `.feature` (cổng trước tech-docs / code / QC)
 - Báo PO/BA khi PRD hoặc BDD có gì không rõ hoặc mâu thuẫn — không tự suy diễn
 
 **Dev KHÔNG làm:**
