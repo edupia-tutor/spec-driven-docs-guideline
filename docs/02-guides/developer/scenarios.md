@@ -128,16 +128,16 @@ Dev chạy:
 
 **Bối cảnh:** System BDD đã gen, BE dev bắt đầu `/generate-tech-docs` nhưng FE/App chưa confirm API contract. **Trạng thái tech docs trong thời gian này:** `@trace.status: in-review`.
 ```
-BE dev: /generate-tech-docs auth/FT-001-UC1
+BE dev: /generate-tech-docs auth/bdd/system/FT-001-UC1.feature   # trỏ System BDD → phần backend
 # Umbrella mode (có spec_source): output nằm trong SPEC REPO chung
-→ Output: free-trial-specs/specs/auth/login/tech-docs/FT-001-UC1-tech-design.md
+→ Output: free-trial-specs/specs/auth/login/tech-docs/FT-001-tech-design.md   (1 doc/PRD)
 # Single-service (không có spec_source): output nằm tại project root
-→ Output: specs/auth/login/tech-docs/FT-001-UC1-tech-design.md
+→ Output: specs/auth/login/tech-docs/FT-001-tech-design.md
 → @trace.status: draft
 → @trace.sign_off: { be_team: done, fe_team: pending, app_team: pending, sa: pending }
 → Publish: commit + push file lên spec repo (2-layer) để FE/App `/sync` đọc được
 
-BE dev: /review-tech-docs free-trial-specs/specs/auth/login/tech-docs/FT-001-UC1-tech-design.md
+BE dev: /review-tech-docs free-trial-specs/specs/auth/login/tech-docs/FT-001-tech-design.md
 → Chạy T1–T7 (bao gồm T7 cross-team contract check)
 → Report: "Sign-off gate: 🔒 BLOCKED — pending: fe_team, app_team, sa"
 ```

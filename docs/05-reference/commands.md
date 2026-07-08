@@ -57,7 +57,7 @@
 | Command | Cách dùng (ví dụ) | Output | When to use |
 |---------|-------------------|--------|-------------|
 | `/generate-prd` | `/generate-prd specs/product-definition/FEAT-01-login.md` | `specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md` | After define-product. Thêm `API Source: existing` + section "Existing API Contract" cho feature brownfield. |
-| `/refine-prd` | `/refine-prd specs/auth/login/{TICKET-ID}-login.md` | `.agent/review/{prd-slug}-findings.yaml` | After generate-prd — fan-out 4 review lens + completeness-critic loop, mở Review Board. |
+| `/refine-prd` | `/refine-prd specs/auth/login/{TICKET-ID}-login.md` | `.agent/review/{prd-slug}-findings.yaml` | After generate-prd — fan-out 3 review lens (DEV/SA/PO) + completeness-critic loop, mở Review Board. |
 | `/refine-prd --resume` | `/refine-prd --resume specs/auth/login/{TICKET-ID}-login.md` | Applied findings + bumped version | Sau khi review trong Review Board (nút ⚡ Apply tự chạy lệnh này). |
 | `/review-context` (PRD) | `/review-context specs/auth/login/{TICKET-ID}-login.md` | `.agent/review/{prd-slug}-review-context-findings.yaml` | Quality gate trước Phase 3. Checks: routing P0 (umbrella), banned terms (P1), ambiguity (P2), conflicts (P3), completeness (P4), custom (P5). 0 critical → PO đặt `Status: approved`. `--fix`/`--resume` reset Status→draft khi sửa PRD. |
 | `/review-context --fix` | `/review-context --fix specs/auth/login/{TICKET-ID}-login.md` | Applies all auto-fixable findings immediately | Dev quick-fix, không cần Review Board. |
@@ -92,10 +92,10 @@
 
 | Command | Cách dùng (ví dụ) | Output | When to use |
 |---------|-------------------|--------|-------------|
-| `/generate-tech-docs` | `/generate-tech-docs specs/auth/login/bdd/system/FEAT-01-UC1-login.feature` | **BE** (`system`): `specs/{domain}/{prd-slug}/tech-docs/{UC-ID}-tech-design.md` (API contract) · **FE/App** (`web`/`app`): `{UC-ID}-tech-design-{platform}.md` (client design) | After BDD approved. **Platform-aware** (`@trace.platform`): BE = API contract; FE/App = client design (components/state/API-integration/routing + **§2b Test Selectors**: test-id ổn định cho element có action → QC locate khỏi scan) — **GATED**: HALT nếu thiếu System BDD hoặc BE contract approved. Brownfield (`@trace.api_source: existing`) → reverse-document (BE). |
-| `/map-testids {UC-ID}` | `/map-testids FEAT-01-UC1` | Cập nhật FE tech-design §2b Test Selectors + patch forwarding/usage-site + ghi `figma-components/{module}.md` | FE/App, cho component **reuse** / code **có sẵn** (brownfield): reverse-document id đang có, gán id còn thiếu, đảm bảo component dùng chung forward được test-id. Bổ trợ cho `/generate-tech-docs` (chỉ gán id cho code mới). |
-| `/review-tech-docs` | `/review-tech-docs specs/auth/login/tech-docs/FEAT-01-UC1-tech-design.md` | `.agent/review/{uc-id}-tech-review-findings.yaml` | After generate-tech-docs — mở Review Board. |
-| `/review-tech-docs --resume` | `/review-tech-docs --resume specs/auth/login/tech-docs/FEAT-01-UC1-tech-design.md` | Applies accepted findings + bump revision | Sau khi review trong Review Board. |
+| `/generate-tech-docs` | `/generate-tech-docs specs/auth/login/bdd/system/FEAT-01-UC1-login.feature` | **1 doc full-stack/PRD**: `specs/{domain}/{prd-slug}/tech-docs/{TICKET-ID}-tech-design.md` | After BDD approved. **Input = 1..n file BDD tech lead trỏ** (batch, cảnh báo >5), gộp vào doc chung của PRD (append qua nhiều lần chạy). Doc chứa API contract (§4.1–§4.4) + client design (§4.5 component/state/API-map/**§4.5.6 Test Selectors** per platform) + §5 sequence xuyên tầng. Brownfield (`@trace.api_source: existing`) → reverse-document phần API. |
+| `/map-testids {UC-ID}` | `/map-testids FEAT-01-UC1` | Cập nhật §4.5.6 Test Selectors trong tech-doc gộp + patch forwarding/usage-site + ghi `figma-components/{module}.md` | FE/App, cho component **reuse** / code **có sẵn** (brownfield): reverse-document id đang có, gán id còn thiếu, đảm bảo component dùng chung forward được test-id. Bổ trợ cho `/generate-tech-docs` (chỉ gán id cho code mới). |
+| `/review-tech-docs` | `/review-tech-docs specs/auth/login/tech-docs/FEAT-01-tech-design.md` | `.agent/review/{TICKET-ID}-tech-review-findings.yaml` | After generate-tech-docs — mở Review Board. Review cả doc/PRD (findings gom theo UC). |
+| `/review-tech-docs --resume` | `/review-tech-docs --resume specs/auth/login/tech-docs/FEAT-01-tech-design.md` | Applies accepted findings + bump revision | Sau khi review trong Review Board. |
 
 ---
 
@@ -141,7 +141,7 @@
 
 | Command | Cách dùng (ví dụ) | Output | When to use |
 |---------|-------------------|--------|-------------|
-| `/validate-traces {domain}` | `/validate-traces auth` *(hoặc `/validate-traces FEAT-01-UC1`)* | Coverage matrix + drift report + `trace-report.json` | Anytime — verify traceability. Đọc mọi `.trace/{domain}/{prd-slug}/{UC-ID}.tsv` rồi tính status OK / DRIFT / GAP / UNTRACKED. |
+| `/validate-traces {domain}` | `/validate-traces auth` *(hoặc `/validate-traces FEAT-01-UC1`)* | Coverage matrix + drift report + `trace-report.json` | Anytime — verify traceability. Đọc mọi `.trace/{domain}/{prd-slug}/{UC-ID}-{platform}.tsv` rồi tính status OK / DRIFT / GAP / UNTRACKED. |
 
 ---
 

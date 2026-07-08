@@ -13,16 +13,16 @@ flowchart TD
 
     subgraph TD["TECH DESIGN + CODE — BE và FE làm SONG SONG"]
       direction LR
-      subgraph BE["BE track (system) — làm trước để có contract"]
+      subgraph BE["BE track (system) — trỏ System BDD → §4 API contract"]
         direction TB
-        BE1["/generate-tech-docs {system}<br/>API contract ← System BDD<br/>endpoint · data model · DB"] --> BE2["/review-tech-docs → approved<br/>chốt = BE contract<br/>(FE chờ cái này)"] --> BE3["/generate-code {system}<br/>code BE ← System BDD + contract"]
+        BE1["/generate-tech-docs {system}<br/>§4 API contract ← System BDD<br/>endpoint · data model · DB"] --> BE2["/review-tech-docs → approved<br/>§4 = API contract<br/>(client §4.5 map theo)"] --> BE3["/generate-code {system}<br/>code BE ← System BDD + §4"]
       end
       subgraph FE["FE/App track (web · app) — không chờ BE deploy"]
         direction TB
-        FE1["① /generate-code {bdd} --phase=ui<br/>UI ← Web/App BDD + Design Spec<br/>mock ← BE contract (nếu có) · else System BDD<br/>emit test-id · Tester test ngay"] --> GATE{{"GATE — chỉ làm tiếp khi ĐÃ CÓ:<br/>System BDD + BE contract (approved)"}}
-        GATE --> FE2["② /generate-tech-docs {web|app}<br/>FE design ← Web/App BDD + BE contract<br/>§4 map API · §2b test-id"] --> FE2b["/review-tech-docs → approved<br/>(bump revision)"] --> FE3["③ /generate-code --phase=integration<br/>thay mock bằng API thật theo §4"]
+        FE1["① /generate-code {bdd} --phase=ui<br/>UI ← Web/App BDD + Design Spec<br/>mock ← §4 API contract (nếu có) · else System BDD<br/>emit test-id · Tester test ngay"] --> GATE{{"GATE — làm tiếp khi tech-doc<br/>đã có §4 API contract (approved)"}}
+        GATE --> FE2["② /generate-tech-docs {web|app}<br/>append §4.5 client ← Web/App BDD<br/>§4.5.4 map API · §4.5.6 test-id"] --> FE2b["/review-tech-docs → approved<br/>(bump revision)"] --> FE3["③ /generate-code --phase=integration<br/>thay mock bằng API thật theo §4.5.4"]
       end
-      BE2 -. "cấp BE contract" .-> GATE
+      BE2 -. "§4 API contract" .-> GATE
     end
 
     TD --> E["/dev-gen-test → /dev-run-test<br/>dev tự kiểm (dev_selftest)<br/>ghi vào spec .trace"]
@@ -60,9 +60,9 @@ BE:      my-project-specs/specs/{domain}/{prd-slug}/bdd/system/{TICKET-ID}-UC*.f
 ══════════ TECH DESIGN + CODE — BE track & FE track CHẠY SONG SONG ══════════
 (/generate-tech-docs là platform-aware: đọc @trace.platform → BE = API contract · FE/App = client design)
 
-BE track (system)   ── làm trước, sinh ra "BE contract" ──
-  /generate-tech-docs {system}   → API contract: endpoints · data model · DB · caching
-  /review-tech-docs → APPROVED   → đây CHÍNH LÀ "BE contract" mà FE chờ
+BE track (system)   ── trỏ System BDD → §4 API contract ──
+  /generate-tech-docs {system}   → §4: endpoints · data model · DB · caching
+  /review-tech-docs → APPROVED   → §4 = API contract mà client §4.5 map theo
   /generate-code {system}        → code theo BDD (@trace.bdd)
   (full-stack / không tách mock: chỉ cần track này — /generate-code {bdd} một lần)
 
@@ -72,23 +72,23 @@ FE/App track (web|app)   ── KHÔNG chặn chờ BE ──
   ① BẮT ĐẦU NGAY (song song với BE):
      /generate-code {bdd} --phase=ui      → UI + mock adapter
         • UI ← Web/App BDD + Design Spec
-        • mock shape = BE contract nếu có, else System BDD (+warn)
+        • mock shape = §4 API contract nếu có, else System BDD (+warn)
         • fixture values: LUÔN từ System BDD
         • emit test-id (convention {uc}-{screen}-{element}-{type})
         • Tester test FE NGAY (không cần BE deploy API)
                             │
         ╔═══════════════════▼═══════════ GATE ═══════════════════
-        ║  Chỉ mở khi CÓ:  System BDD  +  BE contract (approved, từ track BE)
+        ║  Làm tiếp khi tech-doc đã có §4 API contract (approved)
         ╚═══════════════════╤════════════════════════════════════
                             ▼
-     ② /generate-tech-docs {web|app}      → FE client design (GATED)
+     ② /generate-tech-docs {web|app}      → append §4.5 client vào tech-doc gộp
           • components · state
-          • §4 API-integration map THEO BE contract
-          • §2b Test Selectors (test-id cho element có action)
+          • §4.5.4 API-integration map THEO §4.1 endpoints
+          • §4.5.6 Test Selectors (test-id cho element có action)
         /review-tech-docs → approved (bump revision)
                             ▼
      ③ /generate-code {bdd} --phase=integration
-          → wire real API theo §4 FE tech-design (thay mock)
+          → wire real API theo §4.5.4 tech-doc gộp (thay mock)
         │
         ▼
 /dev-gen-test {bdd-file}
@@ -110,9 +110,9 @@ Tạo PR → notify PO/SA review
 > **Vì sao đúng thứ tự này? — Chuỗi outside-in.** Toàn bộ pipeline đi từ ngoài (client) vào trong (hệ thống):
 > 1. **PO gen BDD: web → app → System** — System BDD (BE) được **tổng hợp từ web+app BDD** (hành vi client định nghĩa trước, BE/system suy ra để phục vụ các flow đó). *(Project chỉ-BE: System BDD gen thẳng từ PRD.)*
 > 2. **BE tech-docs trước** — API contract dẫn xuất từ **System BDD**.
-> 3. **FE/App tech-docs sau (GATED)** — cần **System BDD + BE contract approved**; §4 map theo BE contract.
+> 3. **§4.5 client sau** — trỏ vào Web/App BDD → append §4.5 vào cùng doc; §4.5.4 map theo §4.1 endpoints (nên có §4 approved trước để khỏi rework).
 >
-> FE **không** bị chặn chờ BE nhờ `--phase=ui` (mock shape: BE contract nếu có, else System BDD), rồi `--phase=integration` wire API thật khi contract đã có. Chi tiết flow: [Concepts › Pipeline](../../03-concepts/pipeline.md).
+> FE **không** bị chặn chờ BE nhờ `--phase=ui` (mock shape: §4 API contract nếu có, else System BDD), rồi `--phase=integration` wire API thật khi §4.5.4 đã có. Chi tiết flow: [Concepts › Pipeline](../../03-concepts/pipeline.md).
 
 > **Commit ở đâu, push mấy tầng?** Code nằm trong service submodule → **commit 2 tầng** (service rồi umbrella pointer). Tech-docs + `.trace/` (dev_selftest/qc_status) đẩy lên **spec repo** (1 tầng, cross-repo). Sơ đồ git đầy đủ theo từng role: [Sync & Update — Git flow theo role](../../04-operations/sync-and-update.md#ai-commit-vào-repo-nào-git-flow-theo-role).
 

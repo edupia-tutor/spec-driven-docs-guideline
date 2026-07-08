@@ -135,7 +135,7 @@ Mở Review Board: sidebar panel (Activity Bar), hoặc right-click file `*-find
 - Drill-down: PRD → UC → per-scenario table (Spec ver, Gen ver, Code, Tests, `dev_selftest`, `qc_status`, Waiting on, Status). *Waiting on* = `qc_owner` + `qc_blocked_by` (chờ dev → `BUG-{id}` / chờ PO → `GAP-{id}`).
 - Status badges: ✅ OK · ⚠️ DRIFT · 🔴 GAP · — UNTRACKED. Filter + search + live reload.
 
-Mở: `Ctrl+Shift+P` → **"Spec Driven Docs Tools: Open Living Documentation"**. Mở được cả ở umbrella root lẫn trong một service submodule riêng lẻ. Nếu trống, chạy `/generate-bdd` cho ≥1 feature để tạo file `.trace/{UC-ID}.tsv` đầu tiên.
+Mở: `Ctrl+Shift+P` → **"Spec Driven Docs Tools: Open Living Documentation"**. Mở được cả ở umbrella root lẫn trong một service submodule riêng lẻ. Nếu trống, chạy `/generate-bdd` cho ≥1 feature để tạo file `.trace/{UC-ID}-{platform}.tsv` đầu tiên.
 
 > Report canonical sinh vào spec module tại `{spec_source}/.living-docs/` (gitignored); bản mirror cục bộ ở `./.trace`. Chi tiết traceability: [core-concepts.md](core-concepts.md) và [../03-concepts/traceability.md](../03-concepts/traceability.md).
 

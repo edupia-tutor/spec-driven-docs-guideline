@@ -58,7 +58,7 @@ LAYER 5 — OUTPUT                          (artifacts in consumer proj)
   Spec module (cross-team, via {spec_source}):
     specs/product-definition/
     specs/{domain}/{prd-slug}/ — feature package gom mọi artifact của một PRD:
-      {TICKET-ID}-{prd-slug}.md · bdd/ (web/app/system) · tech-docs/ (API contract + FE tech-design) · design-spec/
+      {TICKET-ID}-{prd-slug}.md · bdd/ (web/app/system) · tech-docs/ (1 doc full-stack/PRD: API contract + client design) · design-spec/
     feedback/
     .trace/{domain}/{prd-slug}/*.tsv (authoritative, committed — một chỗ cho PM) · .living-docs/ (gitignored)
   Service submodule (per-service):

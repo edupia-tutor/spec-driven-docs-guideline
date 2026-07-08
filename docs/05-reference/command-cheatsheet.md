@@ -62,13 +62,13 @@ Có **4 lệnh review** cho **4 loại artifact khác nhau**. Đây là điểm 
 
 | Tôi muốn review… | Cách dùng (ví dụ) | Nó kiểm cái gì | Ai chạy |
 |---|---|---|---|
-| **PRD — nội dung & độ đầy đủ** | `/refine-prd specs/auth/login/{TICKET-ID}-login.md` | 4 lens QA·DEV·SA·PO: AC có test được? edge case? scope rõ? | PO |
+| **PRD — nội dung & độ đầy đủ** | `/refine-prd specs/auth/login/{TICKET-ID}-login.md` | 3 lens DEV·SA·PO (đọc bằng mắt kỹ thuật, viết bằng lời nghiệp vụ): luồng đủ rõ để build chưa? nhất quán nghiệp vụ? scope & mục tiêu rõ? | PO |
 | **PRD — chất lượng trước khi approve** | `/review-context specs/auth/login/{TICKET-ID}-login.md` | P-checks: banned term, mơ hồ, mâu thuẫn PRD khác, thiếu section, routing theo `Domain` (bảng Metadata) | PO |
 | **BDD `.feature`** | `/review-context specs/auth/login/bdd/system/FEAT-01-UC1-login.feature` | B-checks: mỗi AC/BR → có ≥1 scenario? Gherkin R1–R10, compliance C1–C5 | SA/Dev |
-| **Tech design** | `/review-tech-docs specs/auth/login/tech-docs/FEAT-01-UC1-tech-design.md` | T-checks: đúng layer/architecture, entity, trace BDD, cross-team API sign-off | Dev/SA |
+| **Tech design** | `/review-tech-docs specs/auth/login/tech-docs/FEAT-01-tech-design.md` | T-checks: đúng layer/architecture, entity, trace BDD, cross-team API sign-off | Dev/SA |
 | **Code** | `/review-code FEAT-01-UC1` | 4 lăng kính: Traceability · Layer Architecture · Coding Standards · Spec Compliance | Dev |
 
-> **Vì sao PRD có 2 lệnh review?** `/refine-prd` làm **trước** (cải thiện nội dung, fan-out 4 lens). `/review-context` làm **sau** như **cổng chất lượng cuối** trước khi approve + sang BDD. Thứ tự: `generate-prd → refine-prd → review-context → approve`.
+> **Vì sao PRD có 2 lệnh review?** `/refine-prd` làm **trước** (cải thiện nội dung, fan-out 3 lens). `/review-context` làm **sau** như **cổng chất lượng cuối** trước khi approve + sang BDD. Thứ tự: `generate-prd → refine-prd → review-context → approve`.
 >
 > **Vì sao `/review-context` dùng cho cả PRD lẫn BDD?** Nó tự nhận loại theo file: `.md` ở gốc feature folder → PRD mode (P-checks); `.feature` → BDD mode (B-checks). Cùng một "cổng chất lượng", hai bộ tiêu chí.
 

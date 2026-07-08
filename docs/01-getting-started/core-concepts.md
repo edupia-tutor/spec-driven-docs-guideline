@@ -36,7 +36,7 @@ Discovery → PRD → BDD Spec → Tech Design → Code → Dev Self-Check
 | PRD | AI → SA/PO | `/generate-prd`, `/refine-prd`, `/review-context` | `specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md` |
 | Design Spec *(FE/App)* | AI → Designer/PO | `/generate-design-spec` | `specs/{domain}/{prd-slug}/design-spec/...` |
 | BDD Spec | AI → SA/Dev | `/generate-bdd`, `/review-context` | `specs/{domain}/{prd-slug}/bdd/{UC-ID}.feature` |
-| Tech Design | AI → SA/Lead | `/generate-tech-docs`, `/review-tech-docs` | `tech-docs/{domain}/{UC-ID}-tech-design.md` |
+| Tech Design | AI → SA/Lead | `/generate-tech-docs`, `/review-tech-docs` | `tech-docs/{domain}/{prd-slug}/tech-docs/{TICKET-ID}-tech-design.md` (1 doc full-stack/PRD) |
 | Code | AI → Dev | `/generate-code`, `/review-code` | `src/...` |
 | Dev Self-Check | Dev | `/dev-gen-test`, `/dev-run-test`, `/dev-smoke-test` | `src/test/...` |
 | QC Automation | QC | `/qc-analyze → /qc-plan → /qc-design-test → /qc-review → /qc-run-test → /qc-report` | QC designs + run results |
@@ -52,13 +52,13 @@ Mỗi artifact link tới artifact khác qua `@trace.*` tags:
 product-definition.md
   └─► PRD.md (Domain, Status, Service, Module — bảng Metadata)
         └─► specs/{domain}/{prd-slug}/bdd/{web|app|system}/{UC-ID}.feature (@trace.prd_version)
-              └─► specs/{domain}/{prd-slug}/tech-docs/{UC-ID}-tech-design*.md (@trace.bdd_version)
+              └─► specs/{domain}/{prd-slug}/tech-docs/{TICKET-ID}-tech-design.md (@trace.bdd_version)
                     └─► src/ code — service submodule (@trace.implements)
                           └─► src/test/ (@trace.verifies)
-   ════► {spec_source}/.trace/{domain}/{prd-slug}/{UC-ID}.tsv — authoritative ở SPEC repo (drift tracking)
+   ════► {spec_source}/.trace/{domain}/{prd-slug}/{UC-ID}-{platform}.tsv — authoritative ở SPEC repo (drift tracking)
 ```
 
-`/validate-traces {domain}` đọc các `.trace/{domain}/{prd-slug}/{UC-ID}.tsv` và báo cáo:
+`/validate-traces {domain}` đọc các `.trace/{domain}/{prd-slug}/{UC-ID}-{platform}.tsv` và báo cáo:
 
 | Status | Nghĩa |
 |--------|-------|
@@ -92,7 +92,7 @@ my-project-umbrella/          ← mở Claude Code ở đây
 └── web-app/                  ← submodule: FE app
 ```
 
-- **Spec module** (`{spec_source}/`): chứa PRD, Design Spec, **ALL BDD (web/app/system)**, tech-docs (BE API contract + FE tech-design), domain-knowledge, feedback — shared để mọi umbrella đọc cùng nguồn. Report canonical của Living Docs cũng sinh tại `{spec_source}/.living-docs/`.
+- **Spec module** (`{spec_source}/`): chứa PRD, Design Spec, **ALL BDD (web/app/system)**, tech-docs (1 doc full-stack/PRD: API contract + client design), domain-knowledge, feedback — shared để mọi umbrella đọc cùng nguồn. Report canonical của Living Docs cũng sinh tại `{spec_source}/.living-docs/`.
 - **Routing:** context-loader đọc row `Domain` (bảng Metadata) từ PRD → tra trong `services` config → route **code** vào đúng service submodule; **BDD + tech-docs + specs + `.trace/` + feedback** đều ở spec module (cross-team, một chỗ cho PM). PRD phải có row `Domain` khớp một key trong `services`.
 
 Setup umbrella đầy đủ, file ownership, two-layer commit, multi-platform → [Operations › Sync & Update §4 Umbrella mode](../04-operations/sync-and-update.md#4-umbrella-mode--git-submodule).

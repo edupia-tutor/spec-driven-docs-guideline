@@ -57,9 +57,9 @@ Discovery → PRD → BDD → Tech Design → Code → Dev self-check:
 /review-context --resume specs/{domain}/{prd-slug}/bdd/{UC-ID}.feature   # apply + bump bdd_version + reset @trace.status draft
     → ✅ 0 critical → đặt # @trace.status: approved trong .feature → tiếp Tech Design
 /generate-tech-docs specs/{domain}/{prd-slug}/bdd/{UC-ID}.feature
-    → specs/{domain}/{prd-slug}/tech-docs/{UC-ID}-tech-design.md
-/review-tech-docs specs/{domain}/{prd-slug}/tech-docs/{UC-ID}-tech-design.md
-/review-tech-docs --resume specs/{domain}/{prd-slug}/tech-docs/{UC-ID}-tech-design.md
+    → specs/{domain}/{prd-slug}/tech-docs/{TICKET-ID}-tech-design.md   (1 doc full-stack/PRD)
+/review-tech-docs specs/{domain}/{prd-slug}/tech-docs/{TICKET-ID}-tech-design.md
+/review-tech-docs --resume specs/{domain}/{prd-slug}/tech-docs/{TICKET-ID}-tech-design.md
 
 # PHASE 4 — CODE
 /generate-code specs/{domain}/{prd-slug}/bdd/{UC-ID}.feature

@@ -49,14 +49,14 @@ Chạy QC automation pipeline (6 bước — ghi kết quả chính thức vào 
         ├─ /qc-review {UC-ID}        → review test design trước khi chạy
         ├─ /qc-run-test {UC-ID}      → sinh + chạy pytest-playwright
         │                               → ghi qc_status (pass/fail/skip) per scenario
-        │                               → vào {spec_source}/.trace/{domain}/{prd-slug}/{UC-ID}.tsv  ← AUTHORITATIVE (spec repo)
+        │                               → vào {spec_source}/.trace/{domain}/{prd-slug}/{UC-ID}-{platform}.tsv  ← AUTHORITATIVE (spec repo)
         └─ /qc-report {UC-ID}        → report pytest-html + Playwright trace evidence
                                         → reports/<feature>/report.html  ← LOCAL, gitignored
         │
         ▼
 Commit TSV vào spec repo (1 tầng — trace dồn về specs, giống feedback/)
   cd {spec_source}
-  git add .trace/{domain}/{prd-slug}/{UC-ID}.tsv
+  git add .trace/{domain}/{prd-slug}/{UC-ID}-{platform}.tsv
   git commit -m "qc: record qc_status for {UC-ID} — pass/fail"
   git push
         │

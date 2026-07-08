@@ -14,8 +14,9 @@ Dùng mục này khi bạn đã biết mình muốn làm gì và chỉ cần tra
 |-------|----------|
 | [Command Cheat-Sheet](command-cheatsheet.md) | **Bắt đầu ở đây nếu bối rối:** bản đồ 1 trang — luồng end-to-end (ai chạy gì), chọn lệnh review nào, vòng review→Board→resume, giải mã flag `--fix`/`--resume`. |
 | [Command Reference](commands.md) | Bảng đầy đủ MỌI slash command — gom theo phase, kèm input/output/when. Cộng phần Command Internals (step architecture). |
-| [Trace TSV Schema](trace-schema.md) | Header chuẩn của `.trace/{UC-ID}.tsv`, ý nghĩa từng cột (gồm `dev_selftest`, `qc_status`…), các `@trace.*` tag, và JSON report. |
+| [Trace TSV Schema](trace-schema.md) | Header chuẩn của `.trace/{UC-ID}-{platform}.tsv`, ý nghĩa từng cột (gồm `dev_selftest`, `qc_status`…), các `@trace.*` tag, và JSON report. |
 | [Stack Modules](modules.md) | 15 module dưới `modules/`, cách gom theo `platform_type` (backend / web-frontend / mobile), và module QC `qc-playwright`. |
+| [Chọn model cho từng step](model-selection.md) | Nên chạy Opus hay Sonnet cho mỗi command — nguyên tắc chọn + bảng tra 30 step (Opus cho bước ghi code/spec khó đảo; Sonnet cho phần cơ học). |
 
 ---
 
@@ -26,6 +27,7 @@ Dùng mục này khi bạn đã biết mình muốn làm gì và chỉ cần tra
 - **"Lệnh này nhận gì, sinh ra gì?"** → [Command Reference](commands.md)
 - **"Cột `qc_status` vs `dev_selftest` khác nhau thế nào?"** → [Trace TSV Schema](trace-schema.md)
 - **"Stack của tôi map sang module nào?"** → [Stack Modules](modules.md)
+- **"Step này nên chạy Opus hay Sonnet?"** → [Chọn model cho từng step](model-selection.md)
 
 ---
 

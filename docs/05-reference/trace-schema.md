@@ -2,7 +2,7 @@
 
 # Trace TSV Schema
 
-> Schema chuẩn của `.trace/{UC-ID}.tsv` — file trace state per use-case. Mỗi UC một file: 1 header row + 1 data row mỗi scenario. Đây là nguồn dữ liệu cho `/validate-traces` và panel Living Docs.
+> Schema chuẩn của `.trace/{UC-ID}-{platform}.tsv` — file trace state per **use-case × platform**. Mỗi UC có một sổ riêng cho `system` / `web` / `app`: 1 header row + 1 data row mỗi scenario. Tách theo platform vì `sc_id` = `{UC-ID}-SC{N}` chỉ độc nhất trong (UC × platform) (mỗi platform tự đánh số SC từ 1) — gộp một sổ sẽ khiến scenario các platform đè/xoá nhau. Đây là nguồn dữ liệu cho `/validate-traces` và panel Living Docs.
 
 ---
 
@@ -48,8 +48,8 @@ sc_id	sc_title	spec_ver	gen_ver	implemented_by	test_count	test_classes	dev_selft
 | 13 | `qc_blocked_by` | Artifact liên quan: `BUG-{id}` / `GAP-{id}` / `—` | `—` | **qc-run-test** / **report-bug** |
 | 14 | `prd_version` | `@trace.prd_version` từ `.feature` header | từ `.feature` | generate-bdd |
 | 15 | `bdd_version` | `@trace.bdd_version` từ `.feature` header | từ `.feature` | generate-bdd |
-| 16 | `tech_doc_revision` | **BE** API-contract revision tại thời điểm codegen | `—` | generate-code / review-tech-docs (BE doc) |
-| 17 | `fe_tech_doc_revision` | **FE** client tech-design revision (`{UC-ID}-tech-design-{platform}.md`) tại thời điểm FE integration | `—` | generate-code `--phase=integration` / review-tech-docs (FE doc) |
+| 16 | `tech_doc_revision` | Revision tech-doc gộp `{TICKET-ID}-tech-design.md` (§4 backend) tại thời điểm codegen | `—` | generate-code / review-tech-docs |
+| 17 | `fe_tech_doc_revision` | Revision **cùng** tech-doc gộp, ghi khi FE `--phase=integration` wire adapter theo §4.5.4 (drift-detect riêng cho FE) | `—` | generate-code `--phase=integration` |
 | 18 | `prd_status` | `\| **Status** \|` từ PRD metadata | từ PRD | generate-bdd |
 | 19 | `uc_status` | Trạng thái duyệt BDD của UC — **gương của `@trace.status`** (`.feature`): `draft` / `approved` | `draft` (UC mới) | generate-bdd (init) · validate-traces (sync ← `@trace.status`) · review-context (reset draft khi `--fix`/`--resume`) |
 | 20 | `fe_phase` | FE phase khi implement (`ui` / `integration`) | `—` | generate-code `--phase` |
@@ -92,7 +92,7 @@ Trace TSV mang **hai cột tín hiệu độc lập** — không bao giờ trộ
 | 3 | `DRIFT` | `spec_ver != gen_ver` (scenario đổi sau lần codegen gần nhất) |
 | 4 | `OK` | tất cả: `spec_ver == gen_ver`, `implemented_by != —`, `test_count > 0` |
 
-Ngoài ra `/validate-traces` còn flag **`PRD_DRIFT`** (PRD version trong code/TSV trễ hơn PRD file hiện tại), **`TECHDOC_DRIFT`** (code BE sinh từ BE-contract revision cũ — so `tech_doc_revision`), và **`FE_TECHDOC_DRIFT`** (FE integration code sinh từ FE tech-design revision cũ — so `fe_tech_doc_revision`).
+Ngoài ra `/validate-traces` còn flag **`PRD_DRIFT`** (PRD version trong code/TSV trễ hơn PRD file hiện tại), **`TECHDOC_DRIFT`** (code BE sinh từ revision cũ của tech-doc gộp — so `tech_doc_revision`), và **`FE_TECHDOC_DRIFT`** (FE integration wire theo §4.5.4 ở revision cũ của cùng doc — so `fe_tech_doc_revision`).
 
 ---
 

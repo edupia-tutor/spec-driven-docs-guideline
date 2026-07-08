@@ -16,7 +16,7 @@ free-trial-umbrella/                              ← umbrella (Claude Code mở
 │           ├── bdd/system/...                    ← BDD System (BE)
 │           ├── bdd/web/...                        ← BDD Web (FE)
 │           ├── bdd/app/...                        ← BDD App
-│           └── tech-docs/...                     ← Tech Docs (BE contract + FE design)
+│           └── tech-docs/...                     ← Tech Docs (1 doc full-stack/PRD: API contract + client design)
 ├── free-trial-be/    (chỉ code)                  ← SERVICE submodule
 └── free-trial-web/   (chỉ code)                  ← SERVICE submodule
 ```

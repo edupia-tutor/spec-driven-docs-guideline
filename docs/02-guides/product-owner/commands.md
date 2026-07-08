@@ -7,7 +7,7 @@
 | `/setup-ai-first` | Khởi tạo spec repo | 1 lần duy nhất khi bắt đầu project |
 | `/define-product` | Tạo product definition | Trước khi viết PRD — capture ý tưởng tính năng |
 | `/generate-prd` | Tạo PRD từ product definition | Sau khi product definition đủ rõ |
-| `/refine-prd` | Review PRD qua 4 lens (QA/DEV/SA/PO) — fan-out song song + critic loop → findings đầy đủ trong 1 lần chạy | Trước khi share với dev team |
+| `/refine-prd` | Review PRD qua 3 lens (DEV/SA/PO) — fan-out song song + critic loop → findings đầy đủ trong 1 lần chạy | Trước khi share với dev team |
 | `/review-context` | Review chất lượng + consistency của PRD (P-B check groups fan-out song song) | Sau refine, trước khi approve |
 | `/review-context --fix` | Auto-fix các lỗi nhỏ trong PRD | Khi có nhiều lỗi minor tự sửa được |
 | `/review-context --resume` | Apply các fix sau Review Board | Sau khi review findings |

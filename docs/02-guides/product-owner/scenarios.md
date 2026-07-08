@@ -26,7 +26,7 @@ Output: `specs/auth/FEAT-01-login/FEAT-01-login.md`
 ```
 /refine-prd specs/auth/FEAT-01-login/FEAT-01-login.md
 ```
-Agent fan-out 4 lens (QA/DEV/SA/PO) chạy song song, rồi chạy completeness-critic loop cho đến khi một vòng không tìm ra finding mới, cuối cùng dedup + resolve conflict. Findings đầy đủ trong 1 lần chạy.
+Agent fan-out 3 lens (DEV/SA/PO) chạy song song — DEV/SA đọc bằng mắt kỹ thuật nhưng viết finding thuần nghiệp vụ — rồi chạy completeness-critic loop cho đến khi một vòng không tìm ra finding mới, cuối cùng dedup + resolve conflict. Findings đầy đủ trong 1 lần chạy.
 
 Mở findings file, xem xét từng finding: `accepted` → apply · `modified` → viết note · `rejected` → bỏ qua.
 
@@ -431,7 +431,7 @@ Mỗi quyết định được lưu thành `# @system.resolution:` trong file sy
 - **Web/App BDD đổi về sau** → re-gen System BDD (`/generate-bdd → system`) để tổng hợp lại; phát sinh conflict mới → CHECKPOINT lại.
 - **FE cần field mà BE contract chưa có** → là **contract gap**: QC/Dev `/report-bug` hoặc `/propose-scenario` → PO bổ sung vào Web/App BDD → re-synthesize System BDD → BE cập nhật contract. Vòng feedback: [Bug Flow](../../04-operations/bug-flow.md).
 
-> **Tóm tắt outside-in:** Web/App BDD (client trước) → System BDD (tổng hợp, chốt conflict) → BE tech-docs (contract) → FE/App tech-docs (GATED: cần System BDD + BE contract). Chuỗi đầy đủ: [Developer › Workflow](../developer/workflow.md) · [Concepts › Pipeline](../../03-concepts/pipeline.md).
+> **Tóm tắt outside-in:** Web/App BDD (client trước) → System BDD (tổng hợp, chốt conflict) → §4 API contract (trỏ System BDD) → §4.5 client (append từ Web/App BDD, map theo §4.1) — tất cả trong **1 tech-doc/PRD**. Chuỗi đầy đủ: [Developer › Workflow](../developer/workflow.md) · [Concepts › Pipeline](../../03-concepts/pipeline.md).
 
 ---
 

@@ -24,10 +24,10 @@ Mỗi artifact liên kết về artifact trước nó bằng metadata (PRD: bả
 product-definition.md
   └─► PRD.md (Domain, Status, Service/Module — đều trong bảng Metadata)
         └─► specs/{domain}/{prd-slug}/bdd/{web|app|system}/{UC-ID}.feature (@trace.prd_version, @trace.module)
-              └─► specs/{domain}/{prd-slug}/tech-docs/{UC-ID}-tech-design*.md (@trace.bdd_version)
+              └─► specs/{domain}/{prd-slug}/tech-docs/{TICKET-ID}-tech-design.md (@trace.bdd_version)
                     └─► src/ code — service submodule (@trace.implements)
                           └─► src/test/ (@trace.verifies, @trace.service)
-   ════► {spec_source}/.trace/{domain}/{prd-slug}/{UC-ID}.tsv — TSV authoritative ở SPEC repo (coverage/drift)
+   ════► {spec_source}/.trace/{domain}/{prd-slug}/{UC-ID}-{platform}.tsv — TSV authoritative ở SPEC repo (coverage/drift)
 ```
 
 **Các trace field quan trọng:**
@@ -64,7 +64,7 @@ Ví dụ tags trong `.feature`, code, và test:
 
 ## Trace TSV — coverage & drift
 
-`.trace/{domain}/{prd-slug}/{UC-ID}.tsv` là nguồn sự thật per-scenario về trạng thái implement/test. Được **ghi** bởi `/generate-bdd`, `/generate-code`, `/dev-gen-test`, `/qc-run-test`, và **update** bởi `/validate-traces`. Khi `spec_source` set, file `.trace/**/*.tsv` authoritative **được commit ở một chỗ** trong spec repo (`{spec_source}/.trace/`) — một nơi cho PM quản lý; mỗi scenario mang `@trace.service`. (Không có `spec_source` → `.trace` per-service.)
+`.trace/{domain}/{prd-slug}/{UC-ID}-{platform}.tsv` là nguồn sự thật per-scenario về trạng thái implement/test. Được **ghi** bởi `/generate-bdd`, `/generate-code`, `/dev-gen-test`, `/qc-run-test`, và **update** bởi `/validate-traces`. Khi `spec_source` set, file `.trace/**/*.tsv` authoritative **được commit ở một chỗ** trong spec repo (`{spec_source}/.trace/`) — một nơi cho PM quản lý; mỗi scenario mang `@trace.service`. (Không có `spec_source` → `.trace` per-service.)
 
 Status coverage per scenario:
 

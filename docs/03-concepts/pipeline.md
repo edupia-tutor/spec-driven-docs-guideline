@@ -27,7 +27,7 @@ Vòng đời feature đi qua các phase, mỗi transition lớn có **AI review 
 | **2. PRD** | AI → SA/PO review | `/generate-prd`, `/refine-prd`, `/review-context` | `specs/{domain}/{prd-slug}/{TICKET-ID}-{prd-slug}.md` |
 | **2b. Design Spec** *(FE/App only)* | AI → Designer/PO sign-off | `/generate-design-spec` | `specs/{domain}/{prd-slug}/design-spec/{TICKET-ID}-design-spec-{platform}-{slug}.md` |
 | **3. BDD Spec** | AI → SA/Dev review | `/generate-bdd`, `/review-context` | `specs/{domain}/{prd-slug}/bdd/{UC-ID}.feature` |
-| **4. Tech Design** *(platform-aware)* | AI → SA/Lead review | `/generate-tech-docs`, `/review-tech-docs` | BE: `specs/{domain}/{prd-slug}/tech-docs/{UC-ID}-tech-design.md` (API contract) · FE/App: `{UC-ID}-tech-design-{platform}.md` (client design — **gated** trên System BDD + BE contract) |
+| **4. Tech Design** *(1 doc full-stack / PRD)* | AI → SA/Lead review | `/generate-tech-docs`, `/review-tech-docs` | `specs/{domain}/{prd-slug}/tech-docs/{TICKET-ID}-tech-design.md` — MỘT bản vẽ gộp cả BE (API contract, data model, DB) + client (§4.5 component/state/Figma per platform) + sequence xuyên tầng. Input = **file BDD tech lead trỏ** (1..n, batch); **append** vào doc chung khi trỏ BDD mới |
 | **5. Code** | AI → Dev review | `/generate-code` *(FE: `--phase=ui`/`--phase=integration`)*, `/review-code` | `src/...` |
 | **6. Dev Self-Check** | Dev (own code) | `/dev-gen-test`, `/dev-run-test`, `/dev-smoke-test` | `src/test/...` — dev smoke (`dev_selftest`), tách khỏi QC suite |
 | **6b. QC Automation** *(official QC suite)* | QC | `/qc-analyze` → `/qc-plan` → `/qc-design-test` → `/qc-review` → `/qc-run-test` → `/qc-report` | QC test designs + run results — set `qc_status` (`qc-playwright` module) |
@@ -75,25 +75,26 @@ Phase 2b/3: Design Spec & BDD
        Checks: PRD coverage (mỗi AC + BR bullet → ≥1 scenario) · Gherkin R1–R10 · compliance C1–C5
        ✅ 0 critical → đặt @trace.status: approved (.feature) → Phase 4
 
-Phase 4: Tech Design  (platform-aware — đọc @trace.platform)
-  BE (system):
-    /generate-tech-docs {system .feature} → specs/{domain}/{prd-slug}/tech-docs/{UC-ID}-tech-design.md
-         API contract: endpoints, data model, DB, caching (brownfield: reverse-document)
-  FE/App (web|app) — GATED, cần CÓ trước: System BDD + BE contract (approved):
-    /generate-tech-docs {web|app .feature} → specs/{domain}/{prd-slug}/tech-docs/{UC-ID}-tech-design-{platform}.md
-         client design: components, state, API-integration map theo BE contract, routing,
-         §2b Test Selectors (test-id ổn định cho element có action → QC locate khỏi scan)
-         (thiếu System BDD hoặc BE contract → HALT, in hướng dẫn)
-  /review-tech-docs ────────→ .agent/review/{uc-id}-tech-review-findings.yaml
+Phase 4: Tech Design  (MỘT doc full-stack / PRD — input = file BDD tech lead trỏ)
+  /generate-tech-docs {1..n file .feature / UC tech lead chọn} → specs/{domain}/{prd-slug}/tech-docs/{TICKET-ID}-tech-design.md
+       nạp CHỈ file được trỏ (batch, cảnh báo >5), bồi vào doc chung của PRD → 1 bản vẽ gộp:
+         BE  §1–§4.4,§6–§8: API contract, data model, DB, caching (brownfield: reverse-document)
+         Client §4.5 (mỗi platform): components, state, Figma mapping, API-integration map (mọi call → endpoint §4.1),
+                Test Selectors (test-id ổn định cho element có action → QC locate khỏi scan)
+         §5 sequence diagram xuyên tầng (component→service→API→external→DB), 1/scenario
+         §10 UC Coverage = anchor cho APPEND
+       Fresh (chưa có doc) | Append (đã có → chỉ thêm UC/platform mới, cập nhật §10+Changelog, giữ phần cũ)
+       Gate: review-BDD sạch (mọi feature) · client thiếu design-spec → §4.5 degraded (soft)
+  /review-tech-docs ────────→ .agent/review/{TICKET-ID}-tech-review-findings.yaml
               [Review Board] → --resume (apply + bump revision)
        ✅ APPROVED → Phase 5
 
 Phase 5: Code
   /generate-code ───────────→ src/...  (@trace.implements tags)
        FE: --phase=ui (UI + mock adapter, tester-ready)
-           mock shape: BE contract nếu có (chuẩn) → else System BDD (tạm, warn) — fixture values luôn từ System BDD
-           → khi BE contract approved → /generate-tech-docs {web|app} (FE design, Phase 4)
-           → --phase=integration (wire real API theo §4 của FE tech-design)
+           mock shape: §4 API contract của tech-doc nếu có (chuẩn) → else System BDD (tạm, warn) — fixture values luôn từ System BDD
+           → khi tech-doc có §4.5 client (trỏ /generate-tech-docs vào web|app BDD) & approved
+           → --phase=integration (wire real API theo §4.5.4 của tech-doc gộp)
        (component enforcement: ✅ existing / ⚠️ TODO blocked / ❌ NEW confirm)
   /review-code ─────────────→ Report: Critical / Major / Minor → fix CRITICAL/MAJOR
 

@@ -1,82 +1,109 @@
-[📚 Docs](../README.md) › [Guides](README.md) › Checklist Input Tech-Docs (BE)
+[📚 Docs](../README.md) › [Guides](README.md) › Checklist Input Tech-Docs
 
-# Checklist Input Tech-Docs (BE) — Để API Contract Chuẩn Ngay Lần Đầu
+# Checklist Input Tech-Docs — Tech Lead Cần Làm Gì Để Gen Chuẩn
 
-> Áp cho `/generate-tech-docs` trên một file **System BDD** (`@trace.platform: system`) — sinh ra **BE tech-doc = API contract**. Chuẩn bị đúng đầu vào để FE không phải chờ sửa lại.
+> Áp cho `/generate-tech-docs`. Từ **một hoặc vài file BDD bạn (tech lead) trỏ vào**, lệnh sinh/bồi đắp **một** tech-doc full-stack cho cả PRD. Chuẩn bị đúng đầu vào để dev đọc là code được, và FE không phải chờ sửa lại.
 
-## Trước tiên: BDD khác tech-doc thế nào?
+## Mô hình (đọc trước để trỏ lệnh cho đúng)
 
-Hai cái trả lời **hai câu hỏi khác nhau** về cùng một tính năng BE:
-
-| | **System BDD (BE)** | **BE Tech-docs (API contract)** |
-|---|---|---|
-| Trả lời | **CÁI GÌ** — hệ thống phải làm gì (hành vi nghiệp vụ) | **LÀM SAO** — hiện thực kỹ thuật |
-| Viết bằng | sự kiện nghiệp vụ: "hệ thống nhận X → trả về Y → báo lỗi Z" | endpoint/method/path, **shape** request/response, HTTP status, data model, DB, error code |
-| Chi tiết kỹ thuật? | **KHÔNG** | **CÓ** — nơi *duy nhất* chứa mấy thứ đó |
-| Ai làm | PO (spec repo) | Dev (`/generate-tech-docs`) |
-| Sinh từ đâu | từ PRD | **từ chính System BDD** |
-| Dùng để | kiểm chứng hành vi (QC test trace về đây) | BE code theo; **FE đọc để gọi API thật** |
+- **1 PRD = 1 file tech-doc** `{TICKET-ID}-tech-design.md` — gộp cả BE (API, data model, DB) lẫn client (§4.5 component/state/Figma) + §5 sequence xuyên tầng.
+- **Input = file BDD bạn chỉ định**, KHÔNG phải cả PRD. Lệnh chỉ nạp đúng file bạn trỏ (giữ context nhỏ), rồi **ghi/bồi đắp** vào doc chung của PRD.
+- **Append là đường chính:** chạy lệnh trên BDD này → lần sau trỏ BDD khác cùng PRD → doc **lớn dần lên**, không ghi đè phần cũ. §10 UC Coverage là "sổ điểm danh" để lệnh biết cái gì đã có.
 
 ```
-PRD  →  System BDD (CÁI GÌ)  →  /generate-tech-docs  →  BE tech-doc (LÀM SAO)  →  code
+BDD (web/app/system) ──/generate-tech-docs {file(s) bạn trỏ}──▶ {TICKET}-tech-design.md
+        run 1: system/UC1        →  tạo doc, phần BE của UC1
+        run 2: web/UC1 app/UC1   →  append §4.5 client cho UC1
+        run 3: system/UC2 …      →  append UC2
 ```
 
-**Ví von:** System BDD = *"đủ tiền → máy nhả nước; thiếu tiền → báo lỗi, trả tiền lại"* (hành vi). Tech-doc = *bản vẽ kỹ thuật của máy*: `POST /vend` nhận `{coin}` trả `{drink_id, change}`, thiếu tiền trả `402`.
+## Bạn trỏ lệnh thế nào (batching)
 
-**Vì sao tách ra?** BDD không vỡ khi đổi chi tiết kỹ thuật (test ổn định); tech-doc là **contract liên đội** (FE phụ thuộc → cần sign-off T7); brownfield thì contract đã nằm sẵn trong PRD, tech-doc chỉ chép lại.
+`/generate-tech-docs` nhận **1 hoặc nhiều** file/UC trong một lần (space-separated) — coi là **một batch**, gộp vào doc trong lần chạy đó.
 
-> Một câu: **BDD nói "đúng thì ra cái gì", tech-doc nói "gọi thế nào để ra cái đó".**
+| Cách trỏ | Khi nào dùng |
+|----------|--------------|
+| `/generate-tech-docs system/{UC}.feature` | Vẽ phần BE (API contract) của 1 UC trước |
+| `/generate-tech-docs {UC}` (system+web+app cùng UC) | Muốn cả full-stack của 1 UC trong 1 lần — trỏ đủ 3 file platform |
+| `/generate-tech-docs system/UC1 system/UC2` | Bồi thêm nhiều UC backend một lượt |
+
+- **Cảnh báo mềm nếu > 5 file/lần** (không chặn) — batch to = nạp nhiều context, chất lượng thiết kế giảm. Nên tách nhỏ: **per UC**, hoặc **per platform**.
+- **Kinh nghiệm:** greenfield nên đi **system trước** (chốt API contract) → rồi mới trỏ `web/`·`app/` để append §4.5 bám đúng endpoint. Không bắt buộc (BE+FE cùng file) nhưng ít rework hơn.
+- Trỏ lại UC **đã có** trong doc → lệnh hỏi xác nhận trước khi cập nhật (thêm platform còn thiếu / refresh khi BDD bump version).
 
 ---
 
-## 7 câu tự hỏi trước khi `/generate-tech-docs` (BE)
+## BDD khác tech-doc thế nào?
 
-**1. System BDD đã duyệt + sạch lỗi chưa?**
-BDD phải `@trace.status: approved` và **không còn finding critical** từ `/review-context`. Lệnh sẽ **dừng (HALT)** nếu BDD còn lỗi critical chưa xử lý.
-→ *Tech-doc dẫn xuất từ BDD; BDD lỗi thì contract lỗi theo.*
+Hai cái trả lời **hai câu hỏi khác nhau** về cùng một tính năng:
+
+| | **BDD (web/app/system)** | **Tech-doc (design)** |
+|---|---|---|
+| Trả lời | **CÁI GÌ** — hệ thống/màn phải làm gì (hành vi) | **LÀM SAO** — hiện thực kỹ thuật |
+| Chi tiết kỹ thuật? | **KHÔNG** | **CÓ** — nơi *duy nhất* chứa endpoint/shape/DB/component/state |
+| Ai làm | PO (spec repo) | Tech lead/Dev (`/generate-tech-docs`) |
+| Dùng để | kiểm chứng hành vi (QC trace về đây) | dev code theo; FE đọc để gọi API thật |
+
+```
+PRD → BDD (CÁI GÌ) → /generate-tech-docs → tech-doc (LÀM SAO) → code
+```
+
+> Một câu: **BDD nói "đúng thì ra cái gì", tech-doc nói "gọi/dựng thế nào để ra cái đó".**
+
+---
+
+## Chuẩn bị trước khi `/generate-tech-docs`
+
+**1. BDD được trỏ đã duyệt + sạch lỗi chưa?**
+Mỗi file trong batch nên `@trace.status: approved` và **0 finding critical** từ `/review-context`. Lệnh **HALT** nếu còn lỗi critical; chưa approved → cảnh báo mềm.
+→ *Tech-doc dẫn xuất từ BDD; BDD lỗi thì design lỗi theo.*
 
 **2. BDD đã mô tả đủ hành vi chưa?**
-Mỗi scenario cần rõ: **kết quả trả về**, **các side-effect** (hệ thống lưu/đổi gì), và **tín hiệu lỗi** ("báo lỗi gì khi nào").
-→ *Đây là nguyên liệu để suy ra endpoint, mã lỗi, và data model. BDD thiếu = contract thiếu.*
+Mỗi scenario rõ: **kết quả trả về**, **side-effect** (lưu/đổi gì), **tín hiệu lỗi** (báo gì khi nào).
+→ *Nguyên liệu để suy ra endpoint, mã lỗi, data model, và §5 sequence. Thiếu = design thiếu.*
 
-**3. API "đã có sẵn"? → bảng contract trong PRD phải đầy đủ**
-Nếu là brownfield (`API Source: existing`), `/generate-tech-docs` chỉ **chép lại** contract từ PRD (reverse-document). Bảng "Existing API Contract" còn dấu "⛔ còn thiếu" → tech-doc sẽ hổng.
-→ *Brownfield: đảm bảo contract đã trích đầy đủ từ nguồn thật.*
+**3. Có client (web/app) trong batch → có design-spec chưa?**
+§4.5 (component, Figma mapping, test-id, state) lấy fidelity từ **design-spec**. Thiếu → cảnh báo mềm, §4.5 vẽ tạm từ BDD và đánh dấu `[DRAFT — no design-spec]`.
+→ *Muốn §4.5 chuẩn: chạy `/generate-design-spec` trước.*
 
-**4. Danh sách thực thể / dữ liệu đã chuẩn chưa?**
-API contract cần **data model**: bảng/trường/kiểu/enum. Đảm bảo `core-entities.md` cập nhật đúng cho tính năng.
-→ *Sai tên một trường ở đây là lệch cả request/response lẫn DB.*
+**4. `core-entities.md` đã chuẩn chưa?**
+§3 Data Model cần bảng/trường/kiểu/enum đúng. Sai tên một trường = lệch cả request/response lẫn DB.
 
-**5. CLAUDE.md đã có kiến trúc + coding standard chưa?**
-Tech-doc mô tả thiết kế theo **layer/kiến trúc của project**. Lệnh đọc `CLAUDE.md` (§architecture, §coding standards) để bám đúng quy ước.
-→ *Thiếu → tech-doc tả kiến trúc chung chung, code sau lệch.*
+**5. `CLAUDE.md` có kiến trúc + coding standard chưa?**
+§2 Architecture + service flow bám **layer/kiến trúc project**. Thiếu → design chung chung, code sau lệch.
 
-**6. Đúng stack module cho service chưa?**
-Service phải trỏ đúng module (java-spring / golang / dotnet / …) để lệnh lấy **mẫu layer** phù hợp.
-→ *Sai module = mẫu thiết kế sai stack.*
+**6. Service trỏ đúng stack module chưa?** (java-spring / golang / dotnet / angular / …)
+→ *Sai module = mẫu layer/component sai stack.*
 
-**7. Phụ thuộc liên service đã ghi chưa?**
-Nếu BE gọi/được gọi bởi service khác (§1c của PRD) → contract phải phản ánh các điểm tích hợp đó.
-→ *Bỏ sót = contract thiếu chỗ nối, FE/đội khác tích hợp hụt.*
+**7. Brownfield? → bảng "Existing API Contract" trong PRD phải đầy đủ.**
+`API Source: existing` → lệnh **chép lại** contract (reverse-document). Còn "⛔ thiếu" → tech-doc hổng.
+
+**8. Phụ thuộc liên service đã ghi chưa?** (§1c PRD)
+→ *Bỏ sót = §6 thiếu chỗ nối, đội khác tích hợp hụt.*
 
 ---
 
-## Checklist nhanh — trước khi `/generate-tech-docs` (system/BE)
+## Checklist nhanh — trước khi gõ lệnh
 
-- [ ] System BDD `@trace.status: approved` + **0 finding critical** (không lệnh sẽ HALT)
+- [ ] Đã chọn **đúng file BDD** cần vẽ lần này (per UC / per platform); batch **≤ 5** file
+- [ ] Mỗi file trong batch `@trace.status: approved` + **0 finding critical** (không → HALT)
 - [ ] Mỗi scenario rõ: kết quả + side-effects + tín hiệu lỗi
-- [ ] Brownfield → bảng Existing API Contract trong PRD **đầy đủ** (hết ⛔)
-- [ ] `core-entities.md` cập nhật (data model: thực thể/trường/kiểu/enum)
+- [ ] Có `web/`·`app/` trong batch → **design-spec sẵn** (không → §4.5 degraded)
+- [ ] `core-entities.md` cập nhật (data model)
 - [ ] `CLAUDE.md` có kiến trúc layer + coding standards
 - [ ] Service trỏ đúng stack module
+- [ ] Brownfield → bảng Existing API Contract trong PRD **đầy đủ** (hết ⛔)
 - [ ] Phụ thuộc liên service (§1c PRD) ghi rõ nếu có
 
 ---
 
 ## Sau khi sinh tech-doc
 
-`/review-tech-docs` chạy các check T1–T7. **T7 = cổng sign-off liên đội** (cross-team): greenfield/partner cần FE/App/SA confirm contract trước khi `@trace.status: approved`; brownfield (`existing`) thì skip T7 vì contract đã chốt sẵn. Contract chỉ thành "BE contract" mà FE chờ **sau khi approved**.
+- Ra **một** file `{TICKET-ID}-tech-design.md` (hoặc doc cũ được bồi thêm), trạng thái `draft`.
+- `/review-tech-docs` chạy các check T1–T7. **T7 = cổng sign-off liên đội**: greenfield/partner cần FE/App/SA confirm contract trước khi `@trace.status: approved`; brownfield (`existing`) skip T7 vì contract đã chốt.
+- Nếu doc sống trong spec repo dùng chung → **commit + push** để cả team `/sync` đọc.
+- Approved rồi mới `/generate-code`.
 
 ---
 
-← [Guides](README.md) · Liên quan: [Checklist Input BDD (System/BE)](bdd-input-checklist.md) · [Checklist Input PRD](prd-input-checklist.md)
+← [Guides](README.md) · Liên quan: [Checklist Input BDD (System/BE)](bdd-input-checklist.md) · [Checklist Input PRD](prd-input-checklist.md) · [Giải thích /generate-tech-docs](../06-commands/explain-generate-tech-docs.md)

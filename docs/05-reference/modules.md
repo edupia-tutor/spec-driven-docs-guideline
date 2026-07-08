@@ -103,7 +103,7 @@ reports/  test-results/     ← generated (gitignored): html report, trace.zip, 
 # @trace.test_type=functional|integration|e2e|non-functional
 ```
 
-> `/qc-run-test` ghi `pass|fail|skip|not_run` + `qc_run_at` vào `{trace_dir}/{UC-ID}.tsv` (song song với `dev_selftest`), surfaced trong Living Docs là kết quả QC automation **chính thức**. Mỗi FAIL được phân loại script-bug (fix selector/logic) vs product-gap (giữ FAIL + evidence, không bao giờ fake-pass).
+> `/qc-run-test` ghi `pass|fail|skip|not_run` + `qc_run_at` vào `{trace_dir}/{UC-ID}-{platform}.tsv` (song song với `dev_selftest`), surfaced trong Living Docs là kết quả QC automation **chính thức**. Mỗi FAIL được phân loại script-bug (fix selector/logic) vs product-gap (giữ FAIL + evidence, không bao giờ fake-pass).
 
 ---
 

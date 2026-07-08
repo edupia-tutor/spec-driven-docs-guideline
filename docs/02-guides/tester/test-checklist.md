@@ -13,7 +13,7 @@
 - [ ] Cross-service flows đã được verify (nếu feature span nhiều service)
 
 **TSV & Living Docs:**
-- [ ] `/qc-run-test` đã chạy → `qc_status` đã ghi vào `{spec_source}/.trace/{UC-ID}.tsv` (spec repo — một chỗ)
+- [ ] `/qc-run-test` đã chạy → `qc_status` đã ghi vào `{spec_source}/.trace/{UC-ID}-{platform}.tsv` (spec repo — một chỗ)
 - [ ] TSV đã được commit vào **spec repo** (1 tầng, giống `feedback/`) + push — KHÔNG commit vào service submodule
 - [ ] `/validate-traces` (hoặc `/sync`) đã chạy → Living Docs panel hiển thị `qc_status: pass`
 - [ ] Không còn scenario nào `qc_status: not_run` trong UC đang test

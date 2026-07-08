@@ -100,7 +100,7 @@ npx @edupia-tutor/spec-driven-docs --migrate-specs --apply
 ```
 
 Lệnh sẽ:
-- Di chuyển `specs/prd/{domain}/{slug}.md` → `specs/{domain}/{slug}/{TICKET-ID}-{slug}.md`, và `specs/bdd|tech-docs|design-spec/{domain}/…` → `specs/{domain}/{prd-slug}/{bdd|tech-docs|design-spec}/…`; flat `.trace/{UC-ID}.tsv` → `.trace/{domain}/{prd-slug}/{UC-ID}.tsv`.
+- Di chuyển `specs/prd/{domain}/{slug}.md` → `specs/{domain}/{slug}/{TICKET-ID}-{slug}.md`, và `specs/bdd|tech-docs|design-spec/{domain}/…` → `specs/{domain}/{prd-slug}/{bdd|tech-docs|design-spec}/…`; flat `.trace/{UC-ID}-{platform}.tsv` → `.trace/{domain}/{prd-slug}/{UC-ID}-{platform}.tsv`.
 - Suy ra `{prd-slug}` cho mỗi file BDD/tech-doc/design-spec/trace bằng cách đọc header `@trace.source` (PRD nguồn) hoặc tag `@trace.uc` (map qua index `.feature`).
 - Dùng `git mv` cho file đã track (giữ history), `fs.rename` cho phần còn lại.
 - Rewrite các tham chiếu nội bộ (`@trace.source`, đường dẫn `specs/…`) trong những file vừa move.
@@ -270,11 +270,11 @@ git push origin main          # → báo Dev team chạy /sync
 ```bash
 cd my-project && /sync        # umbrella root: pull spec + services + Living Docs
 
-# (a) tech-docs (API contract) → SPEC repo  [1 tầng]
+# (a) tech-docs (1 doc full-stack/PRD) → SPEC repo  [1 tầng]
 #     /generate-tech-docs payment/system/FT-042-UC1 ghi vào my-project-specs/specs/payment/checkout/tech-docs/
 cd my-project-specs
-git add specs/payment/checkout/tech-docs/FT-042-UC1-tech-design.md
-git commit -m "docs(payment): FT-042 UC1 BE API contract"
+git add specs/payment/checkout/tech-docs/FT-042-tech-design.md
+git commit -m "docs(payment): FT-042 tech design (backend §4)"
 git push origin main
 cd ..
 
@@ -315,11 +315,11 @@ git commit -m "feat(payment): FT-042 checkout UI + mock adapter"
 git push origin feat/FT-042-checkout-ui
 cd ..
 
-# Phase 2 — khi BE System BDD + contract approved:
-#   (a) FE tech-design (§2b test-ids + §4 API map) → SPEC repo  [1 tầng]
+# Phase 2 — khi tech-doc đã có §4.5 client (append từ web/app BDD) & approved:
+#   (a) append §4.5 client (§4.5.6 test-ids + §4.5.4 API map) vào tech-doc gộp → SPEC repo  [1 tầng]
 cd my-project-specs
-git add specs/payment/checkout/tech-docs/FT-042-UC1-tech-design-web.md
-git commit -m "docs(payment): FT-042 UC1 FE web tech-design (§2b test-ids + §4 API)"
+git add specs/payment/checkout/tech-docs/FT-042-tech-design.md
+git commit -m "docs(payment): FT-042 append web client design (§4.5)"
 git push origin main
 cd ..
 #   (b) /generate-code payment/web/FT-042-UC1 --phase=integration → wire API thật  [Tầng 1]
@@ -397,7 +397,7 @@ git pull
 # Mở Claude Code tại thư mục này:
 /define-product                          # khởi tạo product definition
 /generate-prd {product-definition-file}
-/refine-prd {prd-file}                   # review 4 lens: QA/DEV/SA/PO
+/refine-prd {prd-file}                   # review 3 lens: DEV/SA/PO
 /review-context {prd-file}               # chất lượng + P0 check
 /review-context --fix {prd-file}         # auto-fix vấn đề nhỏ
 # → update Status: approved (bảng Metadata) khi PRD sẵn sàng
@@ -422,16 +422,16 @@ git add my-project-specs && git commit -m "chore: sync specs" && git push
 #   my-project-specs/specs/{domain}/{prd-slug}/bdd/web/{TICKET-ID}-UC*.feature
 
 # ── BE chưa deploy API → làm UI trước ──
-/generate-code {domain}/web/{TICKET-ID}-UC1 --phase=ui  # UI + mock (shape: BE contract nếu có, else System BDD + warn)
+/generate-code {domain}/web/{TICKET-ID}-UC1 --phase=ui  # UI + mock (shape: §4 API contract nếu có, else System BDD + warn)
 /dev-gen-test  {domain}/{TICKET-ID}-UC1
 /review-code   {files-changed}
 /dev-run-test                                           # dev self-check (dev_selftest)
 
 # ── Khi BE đã có System BDD + tech-docs (API contract) approved ──
-/generate-tech-docs {domain}/web/{TICKET-ID}-UC1        # FE client design — GATED: cần System BDD + BE contract
+/generate-tech-docs {domain}/web/{TICKET-ID}-UC1        # append §4.5 client vào {TICKET-ID}-tech-design.md
 /review-tech-docs   {domain}/{TICKET-ID}-UC1-web        # SA/Lead review (bump revision)
 # → sau khi sign-off gate approved:
-/generate-code {domain}/web/{TICKET-ID}-UC1 --phase=integration   # wire API thật theo §4 FE tech-design
+/generate-code {domain}/web/{TICKET-ID}-UC1 --phase=integration   # wire API thật theo §4.5.4 tech-doc gộp
 
 # ── API đã có sẵn ──
 /generate-code {domain}/{TICKET-ID}-UC1                  # không cần --phase

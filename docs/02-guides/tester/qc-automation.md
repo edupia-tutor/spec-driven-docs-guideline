@@ -41,7 +41,7 @@ Cả hai hiển thị **cạnh nhau** trong Living Docs; không cái nào ghi đ
 | `/qc-plan` | risk / what-if / questions-for-dev + test plan | `TEST_PLAN.md` |
 | `/qc-design-test` | thiết kế test case (Markdown `.Test.md`), tag `@trace.verifies={UC-ID}-SC{N}` | `test-cases/` |
 | `/qc-review` | cổng review hai chiều: review test case (sau design) và script (sau run) | findings |
-| `/qc-run-test` | sinh + chạy Python pytest-playwright; **ghi `qc_status`** per scenario | `{trace_dir}/{UC-ID}.tsv` |
+| `/qc-run-test` | sinh + chạy Python pytest-playwright; **ghi `qc_status`** per scenario | `{trace_dir}/{UC-ID}-{platform}.tsv` |
 | `/qc-report` | report pytest-html + Playwright trace + evidence | `reports/<feature>/report.html` |
 
 > **Nơi lưu artifact (`qc_dir`):** mọi output của pipeline (trừ report) nằm trong thư mục QC
@@ -63,9 +63,9 @@ functional / integration / e2e / non-functional / exploratory.
 
 ### Test-ID contract — locate element không cần scan
 
-Để QC **không** phải dò/giả lập vị trí element lúc runtime (chậm), FE tech-design có section **§2b Test Selectors**: mỗi element **có action** được gán test-id ổn định (`{uc}-{screen}-{element}-{type}`, vd `ft001-login-submit-btn`). `/generate-code` emit đúng id đó theo attribute platform (web `data-testid` · RN `testID` · Flutter `Key`/`Semantics` · iOS `accessibilityIdentifier`); `/qc-design-test` cite test-id trong step; `/qc-run-test` build Page Object locator **thẳng từ map** (ưu tiên trong locator priority `data-testid → role → …`). Element có action mà chưa có test-id trong §2b → QC **fallback** role/text (chậm hơn) và nên bổ sung vào tech-design. Xem [Trace Schema](../../05-reference/trace-schema.md) và FE tech-design (`/generate-tech-docs`).
+Để QC **không** phải dò/giả lập vị trí element lúc runtime (chậm), FE tech-design có section **§4.5.6 Test Selectors**: mỗi element **có action** được gán test-id ổn định (`{uc}-{screen}-{element}-{type}`, vd `ft001-login-submit-btn`). `/generate-code` emit đúng id đó theo attribute platform (web `data-testid` · RN `testID` · Flutter `Key`/`Semantics` · iOS `accessibilityIdentifier`); `/qc-design-test` cite test-id trong step; `/qc-run-test` build Page Object locator **thẳng từ map** (ưu tiên trong locator priority `data-testid → role → …`). Element có action mà chưa có test-id trong §4.5.6 → QC **fallback** role/text (chậm hơn) và nên bổ sung vào tech-design. Xem [Trace Schema](../../05-reference/trace-schema.md) và FE tech-design (`/generate-tech-docs`).
 
-> **Component reuse / code có sẵn:** `/generate-tech-docs` + `/generate-code` chỉ gán id cho code **mới**. Với component dùng chung (id ở usage site, component phải *forward* test-id) hoặc màn hình **brownfield** đã viết tay → chạy **`/map-testids {UC-ID}`**: reverse-document id đang có, gán id còn thiếu, patch forwarding + ghi vào `figma-components/{module}.md` (section *Test-ID Forwarding*), điền §2b. Nhờ vậy QC vẫn locate-by-id không cần scan.
+> **Component reuse / code có sẵn:** `/generate-tech-docs` + `/generate-code` chỉ gán id cho code **mới**. Với component dùng chung (id ở usage site, component phải *forward* test-id) hoặc màn hình **brownfield** đã viết tay → chạy **`/map-testids {UC-ID}`**: reverse-document id đang có, gán id còn thiếu, patch forwarding + ghi vào `figma-components/{module}.md` (section *Test-ID Forwarding*), điền §4.5.6. Nhờ vậy QC vẫn locate-by-id không cần scan.
 
 ## Trace Join: qc_status Đến Living Docs Như Thế Nào
 
